@@ -1,3 +1,30 @@
+<<<<<<< HEAD
+=======
+/*import { useEffect, useState } from "react";
+
+export default function App() {
+  const [message, setMessage] = useState("");
+  
+  useEffect(() => {
+    const getTodos = async () => {
+      const res = await fetch("/api/todos");
+      const todos = await res.json();
+
+      setMessage(todos.mssg);
+    };
+
+    getTodos();
+  }, [])
+
+  return (
+    <main className="container">
+      <h1>Awesome Todos</h1>
+      {message && <p>{message}</p>}
+    </main>
+  );
+}
+*/
+>>>>>>> 1cfff29ba42e175413ffeae4bfc1dc95726e76ae
 import { useEffect, useState } from "react";
 import Todo from "./todo";
 export default function App() {
@@ -28,7 +55,11 @@ useEffect(() => {
         setTodos(todos);
     }
     getTodos();
+<<<<<<< HEAD
 }, []); 
+=======
+}, []); // Empty dependency array means this runs once on mount
+>>>>>>> 1cfff29ba42e175413ffeae4bfc1dc95726e76ae
 
   return (
     <main className="container">
