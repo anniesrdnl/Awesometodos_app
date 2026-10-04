@@ -8,7 +8,7 @@ export default function Sidebar({ currentView, counts }) {
         <aside className="sidebar">
             <div className="brand">
                 <span className="brand__mark" aria-hidden="true">
-                    <CheckIcon size={16} strokeWidth="2.5" />
+                    <CheckIcon size={20} strokeWidth="2.5" />
                 </span>
                 <span className="brand__name">Awesome Todos</span>
             </div>

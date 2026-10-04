@@ -9,6 +9,7 @@
 
     --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+    --font-brand: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
     --text-xs: 0.75rem;
     --text-sm: 0.8125rem;
     --text-base: 0.9375rem;
@@ -263,7 +264,7 @@ h3 {
 
 @media (min-width: 960px) {
     .app {
-        grid-template-columns: 15.5rem minmax(0, 1fr);
+        grid-template-columns: 16.5rem minmax(0, 1fr);
         grid-template-rows: none;
     }
 
@@ -299,20 +300,29 @@ h3 {
 .brand {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-3);
     min-height: var(--hit-target);
-    font-weight: var(--weight-semibold);
-    letter-spacing: -0.01em;
 }
 
 .brand__mark {
     display: grid;
     place-items: center;
-    width: 1.625rem;
-    height: 1.625rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
     border-radius: var(--radius-md);
-    background-color: var(--color-accent);
+    background: var(--gradient-primary);
     color: var(--color-on-accent);
+    box-shadow: var(--shadow-accent);
+}
+
+.brand__name {
+    font-family: var(--font-brand);
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .view-nav {
@@ -2241,7 +2251,6 @@ h3 {
 }
 
 /* Display type */
-.brand__name,
 .page-title__heading,
 .state__title,
 .dialog__title,
