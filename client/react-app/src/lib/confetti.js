@@ -1,4 +1,4 @@
-const COLORS = ["#684f48", "#8fc0c9", "#d6e9ed", "#e3c38f", "#f9e7c7", "#ccd6d6", "#9c7a70"];
+const COLORS = ["#e981a4", "#f4c5d7", "#f9adb7", "#fec9c3", "#faf2dd", "#d6618b", "#a83c64"];
 const PARTICLE_COUNT = 140;
 const DURATION_MS = 2200;
 const GRAVITY = 0.28;
