@@ -4,22 +4,29 @@ require("dotenv").config();
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
-let database;
+let connection;
 
-async function connectDB() {
-    try {
-        await client.connect();
-        database = client.db("myDatabase");
-        console.log("MongoDB Connected");
-    } catch (err) {
-        console.error("Failed to connect to MongoDB", err);
+// Reuses one connection and retries on the next request if an attempt fails,
+// so a brief outage at startup doesn't leave the API broken until a restart.
+function connectDB() {
+    if (!connection) {
+        connection = client
+            .connect()
+            .then(() => {
+                console.log("MongoDB Connected");
+                return client.db("myDatabase");
+            })
+            .catch((err) => {
+                connection = undefined;
+                console.error("Failed to connect to MongoDB", err);
+                throw err;
+            });
     }
+    return connection;
 }
 
-function getCollection(name) {
-    if (!database) {
-        throw new Error("Database not initialized");
-    }
+async function getCollection(name) {
+    const database = await connectDB();
     return database.collection(name);
 }
 

@@ -3,14 +3,14 @@ const router = express.Router();
 const { getCollection } = require("./models/index");
 const { ObjectId } = require("mongodb");
 router.get("/todos", async(req, res) => {
-    const collection = getCollection("todos");
+    const collection = await getCollection("todos");
     const todos = await collection.find({}).toArray();
 
     res.status(200).json(todos);
 });
 // POST /todos
 router.post("/todos", async(req, res) => {
-        const collection = getCollection("todos");
+        const collection = await getCollection("todos");
         let { todo } = req.body;
 
 
@@ -21,7 +21,7 @@ router.post("/todos", async(req, res) => {
     })
     // DELETE /todos/:id
 router.delete("/todos/:id", async(req, res) => {
-        const collection = getCollection("todos");
+        const collection = await getCollection("todos");
         const _id = new ObjectId(req.params.id);
 
         const deletedTodo = await collection.deleteOne({ _id });
@@ -30,7 +30,7 @@ router.delete("/todos/:id", async(req, res) => {
     // PUT /todos/:id
 
 router.put("/todos/:id", async(req, res) => {
-    const collection = getCollection("todos");
+    const collection = await getCollection("todos");
     const _id = new ObjectId(req.params.id);
     const { status, todo } = req.body;
     const changes = {};

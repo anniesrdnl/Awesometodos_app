@@ -17,7 +17,8 @@ app.use("/api", router);
 const port = process.env.PORT || 5000;
 
 const startServer = async() => {
-    await connectDB();
+    // A failed first attempt is logged and retried on the next API request.
+    await connectDB().catch(() => {});
     app.listen(port, () => {
         console.log(`Server is listening on http://localhost:${port}`);
     });
