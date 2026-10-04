@@ -1,4 +1,5 @@
-import { daysSince, formatCreatedAt, getCreatedAt, pluralize } from "../lib/tasks";
+import { cx, daysSince, formatCreatedAt, getCreatedAt, pluralize } from "../lib/tasks";
+import AnimatedNumber from "./AnimatedNumber";
 import { ArrowRightIcon } from "./Icon";
 
 const RING_RADIUS = 26;
@@ -6,7 +7,7 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 function ProgressRing({ percent }) {
     return (
-        <div className="ring" style={{ "--ring-circumference": RING_CIRCUMFERENCE }}>
+        <div className={cx("ring", percent === 100 && "is-complete")} style={{ "--ring-circumference": RING_CIRCUMFERENCE }}>
             <svg viewBox="0 0 64 64" aria-hidden="true">
                 <circle className="ring__track" cx="32" cy="32" r={RING_RADIUS} />
                 {percent > 0 && (
@@ -20,7 +21,7 @@ function ProgressRing({ percent }) {
                     />
                 )}
             </svg>
-            <span className="ring__label">{percent}%</span>
+            <span className="ring__label"><AnimatedNumber value={percent} />%</span>
         </div>
     );
 }
@@ -29,7 +30,7 @@ function Stat({ label, value, href }) {
     const content = (
         <>
             <span className="stat__label">{label}</span>
-            <span className="stat__value">{value}</span>
+            <span className="stat__value"><AnimatedNumber value={value} /></span>
         </>
     );
     return (
@@ -65,7 +66,7 @@ export default function Overview({ todos, counts, isReady, onNewTask, onSearch, 
     const oldestAgeDays = oldestOpen && daysSince(oldestCreatedAt);
 
     return (
-        <aside className="overview" aria-label="Overview">
+        <aside className="overview" aria-label="Overview" data-spotlight>
             {isReady && counts.all > 0 && (
                 <>
                     <section className="overview__section">
@@ -74,7 +75,7 @@ export default function Overview({ todos, counts, isReady, onNewTask, onSearch, 
                             <ProgressRing percent={percentDone} />
                             <div>
                                 <p className="overview__figure">
-                                    {counts.completed} of {counts.all}
+                                    <AnimatedNumber value={counts.completed} /> of {counts.all}
                                 </p>
                                 <p className="overview__caption">tasks completed</p>
                             </div>
@@ -110,7 +111,9 @@ export default function Overview({ todos, counts, isReady, onNewTask, onSearch, 
                 <ul className="shortcuts">
                     <Shortcut label="New task" shortcut="N" onActivate={onNewTask} />
                     <Shortcut label="Search" shortcut="/" onActivate={counts.all > 0 ? onSearch : undefined} />
-                    <Shortcut label="Save edit" shortcut="Enter" />
+                    <Shortcut label="Move between tasks" shortcut="↑ ↓" />
+                    <Shortcut label="Edit focused task" shortcut="E" />
+                    <Shortcut label="Delete focused task" shortcut="Del" />
                     <Shortcut label="Cancel or clear" shortcut="Esc" />
                 </ul>
             </section>

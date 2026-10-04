@@ -26,6 +26,13 @@ export const PlusIcon = (props) => (
     <Icon {...props}><path d="M12 5v14M5 12h14" /></Icon>
 );
 
+export const TrophyIcon = (props) => (
+    <Icon {...props}>
+        <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0Z" />
+        <path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3" />
+    </Icon>
+);
+
 export const ArrowRightIcon = (props) => (
     <Icon {...props}><path d="M5 12h14M13 6l6 6-6 6" /></Icon>
 );

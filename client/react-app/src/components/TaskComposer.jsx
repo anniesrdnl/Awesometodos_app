@@ -48,7 +48,7 @@ export default function TaskComposer({ onCreate, inputRef }) {
     return (
         <form className="composer" onSubmit={handleSubmit} noValidate>
             <label htmlFor="new-task" className="visually-hidden">New task</label>
-            <div className={cx("composer__field", error && "is-invalid")}>
+            <div className={cx("composer__field", error && "is-invalid")} data-spotlight>
                 <PlusIcon className="composer__icon" />
                 <input
                     ref={inputRef}

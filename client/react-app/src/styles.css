@@ -58,6 +58,13 @@
     --color-danger-fg: #c92a2a;
     --color-danger-soft: #fdf0f0;
     --color-success-fg: #2b7a3b;
+    --color-success: #2f9e44;
+    --glow-primary: rgb(76 110 245 / 0.26);
+    --glow-secondary: rgb(151 117 250 / 0.2);
+    --dot-color: rgb(28 28 26 / 0.09);
+    --spot-border: rgb(59 91 219 / 0.6);
+    --spot-fill: rgb(59 91 219 / 0.05);
+    --sidebar-bg: rgb(247 247 245 / 0.72);
     --color-inverse: #1f1f1d;
     --color-on-inverse: #f4f4f2;
     --color-inverse-muted: rgb(244 244 242 / 0.65);
@@ -105,6 +112,13 @@
         --color-danger-fg: #ff8787;
         --color-danger-soft: rgb(240 62 62 / 0.12);
         --color-success-fg: #69db7c;
+        --color-success: #40c057;
+        --glow-primary: rgb(76 110 245 / 0.3);
+        --glow-secondary: rgb(151 117 250 / 0.22);
+        --dot-color: rgb(255 255 255 / 0.07);
+        --spot-border: rgb(145 167 255 / 0.65);
+        --spot-fill: rgb(145 167 255 / 0.06);
+        --sidebar-bg: rgb(20 20 19 / 0.7);
         --color-inverse: #efefed;
         --color-on-inverse: #1c1c1a;
         --color-inverse-muted: rgb(28 28 26 / 0.6);
@@ -296,8 +310,10 @@ kbd {
     align-items: center;
     gap: var(--space-2) var(--space-4);
     padding: var(--space-2) var(--space-4) var(--space-3);
-    background-color: var(--color-bg);
+    background-color: var(--sidebar-bg);
     border-bottom: 1px solid var(--color-border);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
 }
 
 .brand {
@@ -2005,8 +2021,264 @@ kbd {
 }
 
 /* ==========================================================================
+   Ambient background
+   ========================================================================== */
+
+.backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.backdrop::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--dot-color) 1px, transparent 1.5px);
+    background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 60% 0%, #000 10%, transparent 75%);
+    mask-image: radial-gradient(ellipse 80% 60% at 60% 0%, #000 10%, transparent 75%);
+}
+
+.backdrop__glow {
+    position: absolute;
+    width: 56rem;
+    height: 56rem;
+    border-radius: 50%;
+}
+
+.backdrop__glow--primary {
+    top: -28rem;
+    right: -16rem;
+    background: radial-gradient(circle, var(--glow-primary), transparent 65%);
+    animation: drift-primary 28s ease-in-out infinite alternate;
+}
+
+.backdrop__glow--secondary {
+    bottom: -32rem;
+    left: 8%;
+    background: radial-gradient(circle, var(--glow-secondary), transparent 65%);
+    animation: drift-secondary 34s ease-in-out infinite alternate;
+}
+
+/* ==========================================================================
+   Delight: spotlight, greeting, celebration, sparks
+   ========================================================================== */
+
+.page-header__greeting {
+    margin-bottom: var(--space-1);
+    background: linear-gradient(90deg, var(--color-accent-fg), #9775fa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    animation: view-in 400ms var(--ease-out);
+}
+
+/* Rows fade in one after another when a view loads. */
+.task-row__inner {
+    animation: row-in 380ms var(--ease-out) both;
+    animation-delay: calc(var(--order, 0) * 40ms);
+}
+
+/* A glow follows the pointer along the edge of interactive surfaces. */
+@media (hover: hover) and (pointer: fine) {
+    .task-list,
+    .composer__field,
+    .celebration {
+        position: relative;
+    }
+
+    [data-spotlight]::after {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        z-index: 2;
+        padding: 1px;
+        border-radius: inherit;
+        background: radial-gradient(16rem circle at var(--spot-x, 50%) var(--spot-y, 50%), var(--spot-border), transparent 70%);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 300ms;
+    }
+
+    [data-spotlight]:hover::after {
+        opacity: 1;
+    }
+
+    .task-list:hover,
+    .overview:hover {
+        background-image: radial-gradient(28rem circle at var(--spot-x, 50%) var(--spot-y, 50%), var(--spot-fill), transparent 60%);
+    }
+}
+
+.celebration {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(120deg, var(--color-accent-soft), var(--color-surface) 65%);
+    box-shadow: var(--shadow-sm);
+    animation: celebration-in 500ms var(--ease-out);
+}
+
+.celebration__icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent), #9775fa);
+    color: #ffffff;
+    box-shadow: var(--shadow-accent);
+    animation: trophy-wiggle 1.4s ease-in-out 400ms 2;
+}
+
+.celebration__text {
+    flex: 1;
+    min-width: 0;
+}
+
+.celebration__title {
+    font-weight: var(--weight-semibold);
+}
+
+.celebration__description {
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+}
+
+@media (max-width: 639px) {
+    .celebration {
+        flex-wrap: wrap;
+    }
+
+    .celebration .btn {
+        width: 100%;
+    }
+}
+
+.ring.is-complete .ring__value {
+    stroke: var(--color-success);
+}
+
+.ring.is-complete {
+    animation: ring-glow 2.4s ease-in-out infinite;
+    border-radius: 50%;
+}
+
+.checkbox__sparks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.checkbox__sparks i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    margin: -2px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    opacity: 0;
+    animation: spark 560ms var(--ease-out) forwards;
+}
+
+.checkbox__sparks i:nth-child(odd) {
+    background-color: #9775fa;
+}
+
+.checkbox__sparks i:nth-child(3n) {
+    background-color: #f59f00;
+}
+
+.confetti {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* ==========================================================================
    Keyframes & motion preferences
    ========================================================================== */
+
+@keyframes drift-primary {
+    to {
+        transform: translate(-8rem, 6rem) scale(1.1);
+    }
+}
+
+@keyframes drift-secondary {
+    to {
+        transform: translate(10rem, -5rem) scale(1.15);
+    }
+}
+
+@keyframes row-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
+@keyframes celebration-in {
+    from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+    }
+}
+
+@keyframes trophy-wiggle {
+    0%,
+    100% {
+        transform: rotate(0);
+    }
+
+    20% {
+        transform: rotate(-12deg) scale(1.08);
+    }
+
+    40% {
+        transform: rotate(10deg) scale(1.08);
+    }
+
+    60% {
+        transform: rotate(-6deg);
+    }
+}
+
+@keyframes ring-glow {
+    50% {
+        box-shadow: 0 0 0 6px rgb(47 158 68 / 0.12);
+    }
+}
+
+@keyframes spark {
+    0% {
+        opacity: 1;
+        transform: rotate(var(--angle)) translateY(-8px) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotate(var(--angle)) translateY(-22px) scale(0.2);
+    }
+}
 
 @keyframes check-burst {
     from {

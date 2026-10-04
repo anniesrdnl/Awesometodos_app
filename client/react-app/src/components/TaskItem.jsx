@@ -10,7 +10,7 @@ function focusNeighbourOf(row) {
     neighbour?.querySelector(".checkbox__input")?.focus();
 }
 
-export default function TaskItem({ task, highlight, isDeparting, onToggle, onRename, onDelete, onDeparted }) {
+export default function TaskItem({ task, order, highlight, isDeparting, onToggle, onRename, onDelete, onDeparted }) {
     const [isEditing, setEditing] = useState(false);
     const [isRemoving, setRemoving] = useState(false);
     const rowRef = useRef(null);
@@ -56,6 +56,7 @@ export default function TaskItem({ task, highlight, isDeparting, onToggle, onRen
     return (
         <li
             ref={rowRef}
+            style={{ "--order": order }}
             className={cx(
                 "task-row",
                 isCompleted && "is-completed",
@@ -70,7 +71,7 @@ export default function TaskItem({ task, highlight, isDeparting, onToggle, onRen
                 <div className="task">
                     <Checkbox
                         checked={isCompleted}
-                        onChange={() => onToggle(task)}
+                        onChange={(event) => onToggle(task, event.target)}
                         label={task.todo}
                     />
 
@@ -88,10 +89,10 @@ export default function TaskItem({ task, highlight, isDeparting, onToggle, onRen
                                 </time>
                             </div>
                             <div className="task__actions">
-                                <IconButton ref={editButtonRef} label="Edit task" onClick={() => setEditing(true)}>
+                                <IconButton ref={editButtonRef} className="task__edit" label="Edit task" onClick={() => setEditing(true)}>
                                     <PencilIcon size={16} />
                                 </IconButton>
-                                <IconButton label="Delete task" tone="danger" onClick={handleDelete}>
+                                <IconButton className="task__delete" label="Delete task" tone="danger" onClick={handleDelete}>
                                     <TrashIcon size={16} />
                                 </IconButton>
                             </div>

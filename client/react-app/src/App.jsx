@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ConfirmDialog from "./components/ConfirmDialog";
-import { AlertIcon, CheckCircleIcon, InboxIcon, SearchIcon } from "./components/Icon";
+import { AlertIcon, CheckCircleIcon, InboxIcon, SearchIcon, TrophyIcon } from "./components/Icon";
 import SearchField from "./components/SearchField";
 import Sidebar from "./components/Sidebar";
 import StateMessage from "./components/StateMessage";
@@ -10,9 +10,11 @@ import Toaster from "./components/Toaster";
 import Overview from "./components/Overview";
 import { useHashView } from "./hooks/useHashView";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { useSpotlight } from "./hooks/useSpotlight";
 import { UNDO_WINDOW_MS, useTodos } from "./hooks/useTodos";
 import { useToasts } from "./hooks/useToasts";
-import { formatToday, pluralize } from "./lib/tasks";
+import { launchConfetti } from "./lib/confetti";
+import { formatToday, getGreeting, pluralize } from "./lib/tasks";
 
 const HIGHLIGHT_MS = 1600;
 const NO_IDS = new Set();
@@ -68,6 +70,7 @@ export default function App() {
         "/": () => searchRef.current?.focus(),
     }), []);
     useKeyboardShortcuts(shortcuts);
+    useSpotlight();
 
     useEffect(() => {
         if (!highlight) return;
@@ -99,7 +102,11 @@ export default function App() {
         }
     };
 
-    const handleToggle = (task) => {
+    const handleToggle = (task, origin) => {
+        if (!task.status && counts.active === 1) {
+            const rect = origin.getBoundingClientRect();
+            launchConfetti({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+        }
         if (view.id !== "all") {
             setDeparting((current) => ({
                 viewId: view.id,
@@ -203,20 +210,29 @@ export default function App() {
         );
     }
 
+    const isAllDone = status === "ready" && counts.all > 0 && counts.active === 0;
+    const showCelebration = isAllDone && view.id === "all" && !searchTerm;
     const showFooter = status === "ready" && counts.completed > 0 && view.id !== "active";
 
     return (
         <div className="app">
+            <div className="backdrop" aria-hidden="true">
+                <span className="backdrop__glow backdrop__glow--primary" />
+                <span className="backdrop__glow backdrop__glow--secondary" />
+            </div>
+
             <Sidebar currentView={view} counts={counts} />
 
             <main className="main">
                 <div className="main__inner">
                     <header className="page-header">
                         <div className="page-header__text">
+                            <p className="page-header__greeting">{getGreeting()}</p>
                             <h1 className="page-header__title">{view.title}</h1>
                             <p className="page-header__meta">
                                 {formatToday()}
-                                {status === "ready" && counts.all > 0 && ` · ${counts.active} remaining`}
+                                {status === "ready" && counts.all > 0 &&
+                                    (isAllDone ? " · All caught up" : ` · ${counts.active} remaining`)}
                             </p>
                         </div>
                         {counts.all > 0 && <SearchField value={query} onChange={setQuery} inputRef={searchRef} />}
@@ -225,6 +241,23 @@ export default function App() {
                     <div className="workspace">
                         <div className="workspace__primary">
                             <TaskComposer onCreate={handleCreate} inputRef={composerRef} />
+
+                            {showCelebration && (
+                                <div className="celebration" data-spotlight>
+                                    <span className="celebration__icon" aria-hidden="true">
+                                        <TrophyIcon size={20} />
+                                    </span>
+                                    <div className="celebration__text">
+                                        <p className="celebration__title">All done. Nice work!</p>
+                                        <p className="celebration__description">
+                                            Every task is complete. Add something new or clear the list to start fresh.
+                                        </p>
+                                    </div>
+                                    <button type="button" className="btn btn--secondary btn--sm" onClick={() => launchConfetti()}>
+                                        Celebrate
+                                    </button>
+                                </div>
+                            )}
 
                             <section key={view.id} className="tasks" aria-label={view.title}>
                                 {content}

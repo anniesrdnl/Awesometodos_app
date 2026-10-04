@@ -27,6 +27,9 @@ A calm, focused task manager built with React and Express. Add, complete, edit a
 | --- | --- |
 | `N` | Focus the new-task field |
 | `/` | Focus search |
+| `↑` / `↓` | Move between tasks in the list |
+| `E` | Edit the focused task |
+| `Delete` | Delete the focused task (with undo) |
 | `Enter` | Add a task or save an edit |
 | `Esc` | Cancel an edit or clear the search |
 
