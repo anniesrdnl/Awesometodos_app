@@ -1,25 +1,29 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import AllDoneState from "./components/AllDoneState";
+import Backdrop from "./components/Backdrop";
 import ConfirmDialog from "./components/ConfirmDialog";
-import { AlertIcon, CheckCircleIcon, InboxIcon, SearchIcon, TrophyIcon } from "./components/Icon";
+import { AlertIcon, CheckCircleIcon, InboxIcon, SearchIcon } from "./components/Icon";
+import Overview from "./components/Overview";
 import SearchField from "./components/SearchField";
 import Sidebar from "./components/Sidebar";
 import StateMessage from "./components/StateMessage";
 import TaskComposer from "./components/TaskComposer";
 import TaskList, { TaskListSkeleton } from "./components/TaskList";
 import Toaster from "./components/Toaster";
-import Overview from "./components/Overview";
 import { useHashView } from "./hooks/useHashView";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-import { useSpotlight } from "./hooks/useSpotlight";
+import { usePointerEffects } from "./hooks/usePointerEffects";
 import { UNDO_WINDOW_MS, useTodos } from "./hooks/useTodos";
 import { useToasts } from "./hooks/useToasts";
 import { launchConfetti } from "./lib/confetti";
-import { formatToday, getGreeting, pluralize } from "./lib/tasks";
+import { flyToView } from "./lib/flyToView";
+import { formatToday, getGreeting, getViewFor, pluralize, VIEWS } from "./lib/tasks";
 
 const HIGHLIGHT_MS = 1600;
 const NO_IDS = new Set();
+const TODO_VIEW = VIEWS[0];
 
-function getEmptyState(view, counts, query) {
+function getEmptyState(view, query) {
     if (query) {
         return {
             icon: <SearchIcon size={22} />,
@@ -32,14 +36,7 @@ function getEmptyState(view, counts, query) {
         return {
             icon: <CheckCircleIcon size={22} />,
             title: "Nothing completed yet",
-            description: "Tasks you check off will show up here.",
-        };
-    }
-    if (view.id === "active" && counts.all > 0) {
-        return {
-            icon: <CheckCircleIcon size={22} />,
-            title: "All caught up",
-            description: "Every task is done. Enjoy the clear list.",
+            description: "Check off a task and it will land here.",
         };
     }
     return {
@@ -48,6 +45,11 @@ function getEmptyState(view, counts, query) {
         description: "Add your first task to start getting things done.",
         action: "add-task",
     };
+}
+
+function centerOf(element) {
+    const rect = element.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 }
 
 export default function App() {
@@ -70,7 +72,7 @@ export default function App() {
         "/": () => searchRef.current?.focus(),
     }), []);
     useKeyboardShortcuts(shortcuts);
-    useSpotlight();
+    usePointerEffects();
 
     useEffect(() => {
         if (!highlight) return;
@@ -89,6 +91,7 @@ export default function App() {
     const visibleTasks = todos
         .filter((task) => (view.matches(task) || departingIds.has(task._id)) && matchesSearch(task))
         .reverse();
+    const leavingIds = new Set(visibleTasks.filter((task) => !view.matches(task)).map((task) => task._id));
 
     const handleCreate = async (title) => {
         const created = await addTodo(title);
@@ -96,25 +99,42 @@ export default function App() {
             setHighlight({ id: created._id, kind: "added" });
         } else {
             notify({
-                message: "Task added to Active",
-                action: { label: "Show", onClick: () => { setQuery(""); window.location.hash = "#/active"; } },
+                message: "Task added to To do",
+                action: { label: "Show", onClick: () => { setQuery(""); window.location.hash = TODO_VIEW.href; } },
             });
         }
     };
 
     const handleToggle = (task, origin) => {
-        if (!task.status && counts.active === 1) {
-            const rect = origin.getBoundingClientRect();
-            launchConfetti({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
-        }
-        if (view.id !== "all") {
+        const updated = { ...task, status: !task.status };
+        const destination = getViewFor(updated);
+        const title = origin.closest(".task-row")?.querySelector(".task__title-text");
+
+        if (updated.status && counts.active === 1) launchConfetti(centerOf(origin));
+        flyToView({ source: title ?? origin, href: destination.href, label: task.todo, isCompleting: updated.status });
+
+        if (!view.matches(updated)) {
             setDeparting((current) => ({
                 viewId: view.id,
                 ids: new Set(current.viewId === view.id ? current.ids : NO_IDS).add(task._id),
             }));
         }
-        setAnnouncement(task.status ? `Marked “${task.todo}” as not done` : `Completed “${task.todo}”`);
-        toggleTodo(task).catch(() => reportError("Couldn't update the task. Please try again."));
+        setAnnouncement(updated.status ? `Completed “${task.todo}”` : `Moved “${task.todo}” back to To do`);
+
+        toggleTodo(task).then(
+            () => notify({
+                message: updated.status ? "Moved to Completed" : "Moved back to To do",
+                group: "move",
+                action: {
+                    label: "Undo",
+                    onClick: () => {
+                        setHighlight({ id: task._id, kind: "updated" });
+                        toggleTodo(updated).catch(() => reportError("Couldn't undo that change. Please try again."));
+                    },
+                },
+            }),
+            () => reportError("Couldn't update the task. Please try again."),
+        );
     };
 
     const handleDeparted = (id) => {
@@ -136,7 +156,7 @@ export default function App() {
     };
 
     const handleLocateTask = (task) => {
-        if (!view.matches(task)) window.location.hash = "#/";
+        if (!view.matches(task)) window.location.hash = getViewFor(task).href;
         setQuery("");
         setHighlight({ id: task._id, kind: "located" });
     };
@@ -167,6 +187,9 @@ export default function App() {
         }
     };
 
+    const isAllDone = status === "ready" && counts.all > 0 && counts.active === 0;
+    const showFooter = status === "ready" && counts.completed > 0 && view.id === "completed";
+
     let content;
     if (status === "loading") {
         content = <TaskListSkeleton />;
@@ -180,8 +203,22 @@ export default function App() {
                 action={<button type="button" className="btn btn--secondary" onClick={reload}>Try again</button>}
             />
         );
-    } else if (visibleTasks.length === 0) {
-        const { action, ...emptyState } = getEmptyState(view, counts, query.trim());
+    } else if (visibleTasks.length > 0) {
+        content = (
+            <TaskList
+                tasks={visibleTasks}
+                highlight={highlight}
+                departingIds={leavingIds}
+                onToggle={handleToggle}
+                onRename={handleRename}
+                onDelete={handleDelete}
+                onDeparted={handleDeparted}
+            />
+        );
+    } else if (isAllDone && view.id === TODO_VIEW.id && !searchTerm) {
+        content = <AllDoneState completedCount={counts.completed} onCelebrate={() => launchConfetti()} />;
+    } else {
+        const { action, ...emptyState } = getEmptyState(view, query.trim());
         content = (
             <StateMessage
                 {...emptyState}
@@ -196,30 +233,17 @@ export default function App() {
                 )}
             />
         );
-    } else {
-        content = (
-            <TaskList
-                tasks={visibleTasks}
-                highlight={highlight}
-                departingIds={departingIds}
-                onToggle={handleToggle}
-                onRename={handleRename}
-                onDelete={handleDelete}
-                onDeparted={handleDeparted}
-            />
-        );
     }
 
-    const isAllDone = status === "ready" && counts.all > 0 && counts.active === 0;
-    const showCelebration = isAllDone && view.id === "all" && !searchTerm;
-    const showFooter = status === "ready" && counts.completed > 0 && view.id !== "active";
+    let summary = "";
+    if (status === "ready" && counts.all > 0) {
+        if (view.id === "completed") summary = ` · ${counts.completed} completed`;
+        else summary = isAllDone ? " · All caught up" : ` · ${counts.active} remaining`;
+    }
 
     return (
         <div className="app">
-            <div className="backdrop" aria-hidden="true">
-                <span className="backdrop__glow backdrop__glow--primary" />
-                <span className="backdrop__glow backdrop__glow--secondary" />
-            </div>
+            <Backdrop />
 
             <Sidebar currentView={view} counts={counts} />
 
@@ -231,8 +255,7 @@ export default function App() {
                             <h1 className="page-header__title">{view.title}</h1>
                             <p className="page-header__meta">
                                 {formatToday()}
-                                {status === "ready" && counts.all > 0 &&
-                                    (isAllDone ? " · All caught up" : ` · ${counts.active} remaining`)}
+                                {summary}
                             </p>
                         </div>
                         {counts.all > 0 && <SearchField value={query} onChange={setQuery} inputRef={searchRef} />}
@@ -241,23 +264,6 @@ export default function App() {
                     <div className="workspace">
                         <div className="workspace__primary">
                             <TaskComposer onCreate={handleCreate} inputRef={composerRef} />
-
-                            {showCelebration && (
-                                <div className="celebration" data-spotlight>
-                                    <span className="celebration__icon" aria-hidden="true">
-                                        <TrophyIcon size={20} />
-                                    </span>
-                                    <div className="celebration__text">
-                                        <p className="celebration__title">All done. Nice work!</p>
-                                        <p className="celebration__description">
-                                            Every task is complete. Add something new or clear the list to start fresh.
-                                        </p>
-                                    </div>
-                                    <button type="button" className="btn btn--secondary btn--sm" onClick={() => launchConfetti()}>
-                                        Celebrate
-                                    </button>
-                                </div>
-                            )}
 
                             <section key={view.id} className="tasks" aria-label={view.title}>
                                 {content}

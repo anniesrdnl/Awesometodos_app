@@ -10,7 +10,9 @@ A calm, focused task manager built with React and Express. Add, complete, edit a
 
 - **Fast task capture** – add a task from anywhere with the `N` shortcut. You get clear validation and confirmation as you go.
 - **Inline editing** – rename a task in place with the edit button or a double-click. `Enter` saves and `Esc` cancels.
-- **Views and search** – switch between *All*, *Active* and *Completed*, and filter instantly by keyword (`/`). The current view lives in the URL, so refreshes and the back button behave as expected.
+- **To do and Completed** – checking a task off moves it from *To do* to *Completed*, with a short animation and an *Undo* option. Unchecking it sends it back.
+- **Search** – filter either view instantly by keyword (`/`). The current view lives in the URL, so refreshes and the back button behave as expected.
+- **Mint chocolate theme** – a warm palette of chocolate, mint, sage and cream, with serif headings, an animated ambient background and light and dark modes.
 - **Forgiving deletes** – deleted tasks can be restored with *Undo* for five seconds. Clearing all completed tasks asks for confirmation first.
 - **Overview panel** – on wide screens, a side panel shows overall progress, quick links to each view, the task that has been waiting longest, and the available keyboard shortcuts.
 - **Thoughtful feedback** – optimistic updates with automatic rollback when a request fails, plus loading skeletons and empty, no-results and error states.

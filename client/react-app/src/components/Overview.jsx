@@ -81,7 +81,7 @@ export default function Overview({ todos, counts, isReady, onNewTask, onSearch, 
                             </div>
                         </div>
                         <ul className="overview__stats">
-                            <Stat label="Active" value={counts.active} href="#/active" />
+                            <Stat label="To do" value={counts.active} href="#/" />
                             <Stat label="Done" value={counts.completed} href="#/completed" />
                             <Stat label="This week" value={addedThisWeek} />
                         </ul>

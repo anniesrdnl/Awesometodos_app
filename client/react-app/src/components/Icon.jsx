@@ -59,10 +59,6 @@ export const ListIcon = (props) => (
     <Icon {...props}><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" /></Icon>
 );
 
-export const CircleIcon = (props) => (
-    <Icon {...props}><circle cx="12" cy="12" r="8.5" /></Icon>
-);
-
 export const CheckCircleIcon = (props) => (
     <Icon {...props}><circle cx="12" cy="12" r="8.5" /><path d="m8.5 12 2.5 2.5 4.5-5" /></Icon>
 );

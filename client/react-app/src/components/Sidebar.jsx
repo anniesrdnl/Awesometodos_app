@@ -1,7 +1,7 @@
 import { VIEWS } from "../lib/tasks";
-import { CheckCircleIcon, CheckIcon, CircleIcon, ListIcon } from "./Icon";
+import { CheckCircleIcon, CheckIcon, ListIcon } from "./Icon";
 
-const VIEW_ICONS = { all: ListIcon, active: CircleIcon, completed: CheckCircleIcon };
+const VIEW_ICONS = { active: ListIcon, completed: CheckCircleIcon };
 
 export default function Sidebar({ currentView, counts }) {
     const percentDone = counts.all === 0 ? 0 : Math.round((counts.completed / counts.all) * 100);
@@ -18,7 +18,10 @@ export default function Sidebar({ currentView, counts }) {
             <nav className="view-nav" aria-label="Task views">
                 <ul
                     className="view-nav__list"
-                    style={{ "--active-index": VIEWS.findIndex((view) => view.id === currentView.id) }}
+                    style={{
+                        "--active-index": VIEWS.findIndex((view) => view.id === currentView.id),
+                        "--view-count": VIEWS.length,
+                    }}
                 >
                     {VIEWS.map((view) => {
                         const ViewIcon = VIEW_ICONS[view.id];

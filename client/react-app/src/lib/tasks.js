@@ -1,10 +1,11 @@
 export const MIN_TITLE_LENGTH = 4;
 
 export const VIEWS = [
-    { id: "all", label: "All", title: "All tasks", href: "#/", matches: () => true },
-    { id: "active", label: "Active", title: "Active", href: "#/active", matches: (task) => !task.status },
-    { id: "completed", label: "Completed", title: "Completed", href: "#/completed", matches: (task) => task.status },
+    { id: "active", label: "To do", title: "To do", href: "#/", matches: (task) => !task.status },
+    { id: "completed", label: "Completed", title: "Completed", href: "#/completed", matches: (task) => Boolean(task.status) },
 ];
+
+export const getViewFor = (task) => VIEWS.find((view) => view.matches(task));
 
 export function validateTitle(value) {
     const title = value.trim();
