@@ -4,8 +4,6 @@ import { CheckCircleIcon, CheckIcon, ListIcon } from "./Icon";
 const VIEW_ICONS = { active: ListIcon, completed: CheckCircleIcon };
 
 export default function Sidebar({ currentView, counts }) {
-    const percentDone = counts.all === 0 ? 0 : Math.round((counts.completed / counts.all) * 100);
-
     return (
         <aside className="sidebar">
             <div className="brand">
@@ -16,6 +14,7 @@ export default function Sidebar({ currentView, counts }) {
             </div>
 
             <nav className="view-nav" aria-label="Task views">
+                <p className="view-nav__heading">Workspace</p>
                 <ul
                     className="view-nav__list"
                     style={{
@@ -42,20 +41,6 @@ export default function Sidebar({ currentView, counts }) {
                 </ul>
             </nav>
 
-            {counts.all > 0 && (
-                <div className="progress">
-                    <div className="progress__header">
-                        <span>Progress</span>
-                        <span className="progress__value">{percentDone}%</span>
-                    </div>
-                    <div className="progress__track" aria-hidden="true">
-                        <div className="progress__bar" style={{ width: `${percentDone}%` }} />
-                    </div>
-                    <p className="progress__caption">
-                        {counts.completed} of {counts.all} tasks done
-                    </p>
-                </div>
-            )}
         </aside>
     );
 }

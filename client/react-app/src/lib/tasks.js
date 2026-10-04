@@ -7,14 +7,20 @@ export const VIEWS = [
 
 export const getViewFor = (task) => VIEWS.find((view) => view.matches(task));
 
+export const byCreation = (a, b) => (a._id < b._id ? -1 : a._id > b._id ? 1 : 0);
+
+export const SORT_OPTIONS = [
+    { id: "newest", label: "Newest first", compare: (a, b) => byCreation(b, a) },
+    { id: "oldest", label: "Oldest first", compare: byCreation },
+    { id: "alphabetical", label: "A to Z", compare: (a, b) => a.todo.localeCompare(b.todo) },
+];
+
 export function validateTitle(value) {
     const title = value.trim();
     if (!title) return "Enter a task name.";
     if (title.length < MIN_TITLE_LENGTH) return `Use at least ${MIN_TITLE_LENGTH} characters.`;
     return null;
 }
-
-export const byCreation = (a, b) => (a._id < b._id ? -1 : a._id > b._id ? 1 : 0);
 
 // MongoDB ObjectIds start with the creation time in seconds, as 8 hex characters.
 export const getCreatedAt = (id) => new Date(parseInt(id.slice(0, 8), 16) * 1000);
@@ -25,7 +31,18 @@ function startOfDay(date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-export const daysSince = (date) => Math.floor((Date.now() - date) / DAY_MS);
+// Number of tasks created on each of the last few days, oldest first.
+export function getRecentActivity(todos, days = 7) {
+    const today = startOfDay(new Date());
+    return Array.from({ length: days }, (_, index) => {
+        const date = new Date(today);
+        date.setDate(today.getDate() - (days - 1 - index));
+        const count = todos.filter((todo) => startOfDay(getCreatedAt(todo._id)).getTime() === date.getTime()).length;
+        return { date, count };
+    });
+}
+
+export const formatShortDate = (date) => date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 
 export function formatCreatedAt(date, now = new Date()) {
     const daysAgo = Math.round((startOfDay(now) - startOfDay(date)) / DAY_MS);

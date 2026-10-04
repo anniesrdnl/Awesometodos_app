@@ -24,12 +24,10 @@ export default function SearchField({ value, onChange, inputRef }) {
                 onChange={(event) => onChange(event.target.value)}
                 onKeyDown={handleKeyDown}
             />
-            {value ? (
+            {value && (
                 <button type="button" className="search__clear" aria-label="Clear search" onClick={() => onChange("")}>
                     <CloseIcon size={14} />
                 </button>
-            ) : (
-                <kbd className="search__shortcut" aria-hidden="true">/</kbd>
             )}
         </div>
     );

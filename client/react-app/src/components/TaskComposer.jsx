@@ -4,11 +4,17 @@ import { CheckIcon, PlusIcon } from "./Icon";
 
 const SUCCESS_MESSAGE_MS = 2000;
 
-export default function TaskComposer({ onCreate, inputRef }) {
+export default function TaskComposer({ onCreate, inputRef, focusRequest, onFocusHandled }) {
     const [value, setValue] = useState("");
     const [error, setError] = useState(null);
     const [isSubmitting, setSubmitting] = useState(false);
     const [justAdded, setJustAdded] = useState(false);
+
+    useEffect(() => {
+        if (!focusRequest) return;
+        inputRef.current?.focus();
+        onFocusHandled();
+    }, [focusRequest, inputRef, onFocusHandled]);
 
     useEffect(() => {
         if (!justAdded) return;
@@ -48,7 +54,7 @@ export default function TaskComposer({ onCreate, inputRef }) {
     return (
         <form className="composer" onSubmit={handleSubmit} noValidate>
             <label htmlFor="new-task" className="visually-hidden">New task</label>
-            <div className={cx("composer__field", error && "is-invalid")} data-spotlight>
+            <div className={cx("composer__field", error && "is-invalid")}>
                 <PlusIcon className="composer__icon" />
                 <input
                     ref={inputRef}

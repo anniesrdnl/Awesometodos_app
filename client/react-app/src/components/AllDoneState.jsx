@@ -3,7 +3,7 @@ import { TrophyIcon } from "./Icon";
 
 export default function AllDoneState({ completedCount, onCelebrate }) {
     return (
-        <div className="celebration" data-spotlight>
+        <div className="celebration">
             <span className="celebration__icon" aria-hidden="true">
                 <TrophyIcon size={28} />
             </span>

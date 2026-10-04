@@ -8,13 +8,14 @@ A calm, focused task manager built with React and Express. Add, complete, edit a
 
 ## Features
 
-- **Fast task capture** – add a task from anywhere with the `N` shortcut. You get clear validation and confirmation as you go.
+- **Fast task capture** – add a task from anywhere with the *New task* button. You get clear validation and confirmation as you go.
 - **Inline editing** – rename a task in place with the edit button or a double-click. `Enter` saves and `Esc` cancels.
 - **To do and Completed** – checking a task off moves it from *To do* to *Completed*, with a short animation and an *Undo* option. Unchecking it sends it back.
 - **Search** – filter either view instantly by keyword (`/`). The current view lives in the URL, so refreshes and the back button behave as expected.
 - **Mint chocolate theme** – a warm palette of chocolate, mint, sage and cream, with serif headings, an animated ambient background and light and dark modes.
 - **Forgiving deletes** – deleted tasks can be restored with *Undo* for five seconds. Clearing all completed tasks asks for confirmation first.
-- **Overview panel** – on wide screens, a side panel shows overall progress, quick links to each view, the task that has been waiting longest, and the available keyboard shortcuts.
+- **Dashboard summary** – cards for open tasks, completed tasks, completion rate and a 7-day chart of tasks added. Cards link to their views and the chart shows details on hover.
+- **Sorting** – order the list by newest, oldest or A to Z. Your choice is remembered on this device.
 - **Thoughtful feedback** – optimistic updates with automatic rollback when a request fails, plus loading skeletons and empty, no-results and error states.
 - **Responsive by design** – a sidebar layout on desktop, a compact top bar on tablet and a segmented control on mobile, with touch-sized targets throughout.
 - **Accessible** – semantic HTML, full keyboard support, visible focus states, labelled controls and screen-reader announcements. Light and dark themes follow the system setting, and motion is reduced when the user prefers it.

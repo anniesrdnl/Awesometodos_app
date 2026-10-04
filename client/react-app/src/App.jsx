@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AllDoneState from "./components/AllDoneState";
 import Backdrop from "./components/Backdrop";
 import ConfirmDialog from "./components/ConfirmDialog";
-import { AlertIcon, CheckCircleIcon, InboxIcon, SearchIcon } from "./components/Icon";
-import Overview from "./components/Overview";
+import { AlertIcon, CheckCircleIcon, InboxIcon, PlusIcon, SearchIcon } from "./components/Icon";
 import SearchField from "./components/SearchField";
 import Sidebar from "./components/Sidebar";
+import SortMenu from "./components/SortMenu";
 import StateMessage from "./components/StateMessage";
+import StatsBar from "./components/StatsBar";
 import TaskComposer from "./components/TaskComposer";
 import TaskList, { TaskListSkeleton } from "./components/TaskList";
 import Toaster from "./components/Toaster";
@@ -17,11 +18,21 @@ import { UNDO_WINDOW_MS, useTodos } from "./hooks/useTodos";
 import { useToasts } from "./hooks/useToasts";
 import { launchConfetti } from "./lib/confetti";
 import { flyToView } from "./lib/flyToView";
-import { formatToday, getGreeting, getViewFor, pluralize, VIEWS } from "./lib/tasks";
+import { formatToday, getGreeting, getViewFor, pluralize, SORT_OPTIONS, VIEWS } from "./lib/tasks";
 
 const HIGHLIGHT_MS = 1600;
 const NO_IDS = new Set();
 const TODO_VIEW = VIEWS[0];
+const SORT_STORAGE_KEY = "awesome-todos:sort";
+
+function readSortPreference() {
+    try {
+        const saved = window.localStorage.getItem(SORT_STORAGE_KEY);
+        return SORT_OPTIONS.some((option) => option.id === saved) ? saved : SORT_OPTIONS[0].id;
+    } catch {
+        return SORT_OPTIONS[0].id;
+    }
+}
 
 function getEmptyState(view, query) {
     if (query) {
@@ -64,13 +75,21 @@ export default function App() {
     const [departing, setDeparting] = useState({ viewId: view.id, ids: NO_IDS });
     const [isConfirmingClear, setConfirmingClear] = useState(false);
     const [announcement, setAnnouncement] = useState("");
+    const [sortOrder, setSortOrder] = useState(readSortPreference);
+    const [composerFocusRequest, setComposerFocusRequest] = useState(0);
     const composerRef = useRef(null);
     const searchRef = useRef(null);
 
+    const startNewTask = useCallback(() => {
+        if (window.location.hash !== TODO_VIEW.href) window.location.hash = TODO_VIEW.href;
+        setComposerFocusRequest((count) => count + 1);
+    }, []);
+    const clearComposerFocusRequest = useCallback(() => setComposerFocusRequest(0), []);
+
     const shortcuts = useMemo(() => ({
-        n: () => composerRef.current?.focus(),
+        n: startNewTask,
         "/": () => searchRef.current?.focus(),
-    }), []);
+    }), [startNewTask]);
     useKeyboardShortcuts(shortcuts);
     usePointerEffects();
 
@@ -88,9 +107,10 @@ export default function App() {
     const searchTerm = query.trim().toLowerCase();
     const matchesSearch = (task) => task.todo.toLowerCase().includes(searchTerm);
     const departingIds = departing.viewId === view.id ? departing.ids : NO_IDS;
+    const sortOption = SORT_OPTIONS.find((option) => option.id === sortOrder);
     const visibleTasks = todos
         .filter((task) => (view.matches(task) || departingIds.has(task._id)) && matchesSearch(task))
-        .reverse();
+        .sort(sortOption.compare);
     const leavingIds = new Set(visibleTasks.filter((task) => !view.matches(task)).map((task) => task._id));
 
     const handleCreate = async (title) => {
@@ -155,12 +175,6 @@ export default function App() {
         );
     };
 
-    const handleLocateTask = (task) => {
-        if (!view.matches(task)) window.location.hash = getViewFor(task).href;
-        setQuery("");
-        setHighlight({ id: task._id, kind: "located" });
-    };
-
     const handleDelete = (task) => {
         const undo = removeTodo(task);
         notify({
@@ -174,6 +188,15 @@ export default function App() {
                 },
             },
         });
+    };
+
+    const handleSortChange = (order) => {
+        setSortOrder(order);
+        try {
+            window.localStorage.setItem(SORT_STORAGE_KEY, order);
+        } catch {
+            // Sorting still works for this visit without storage.
+        }
     };
 
     const handleClearCompleted = async () => {
@@ -226,7 +249,7 @@ export default function App() {
                     <button
                         type="button"
                         className="btn btn--secondary"
-                        onClick={action === "clear-search" ? () => setQuery("") : () => composerRef.current?.focus()}
+                        onClick={action === "clear-search" ? () => setQuery("") : startNewTask}
                     >
                         {action === "clear-search" ? "Clear search" : "Add a task"}
                     </button>
@@ -235,11 +258,18 @@ export default function App() {
         );
     }
 
-    let summary = "";
-    if (status === "ready" && counts.all > 0) {
-        if (view.id === "completed") summary = ` · ${counts.completed} completed`;
-        else summary = isAllDone ? " · All caught up" : ` · ${counts.active} remaining`;
+    let summary = "Loading your tasks…";
+    if (status === "error") summary = "Your tasks couldn't be loaded.";
+    else if (status === "ready" && view.id === "completed") {
+        summary = counts.completed > 0
+            ? `You've finished ${pluralize(counts.completed, "task")}. Uncheck one to move it back.`
+            : "Tasks you check off will appear here.";
+    } else if (status === "ready") {
+        if (counts.all === 0) summary = "Plan your day by adding your first task.";
+        else if (isAllDone) summary = "Everything is done. Nice work!";
+        else summary = `You have ${pluralize(counts.active, "open task")}. Check one off to move it to Completed.`;
     }
+    const viewCount = view.id === "completed" ? counts.completed : counts.active;
 
     return (
         <div className="app">
@@ -249,48 +279,64 @@ export default function App() {
 
             <main className="main">
                 <div className="main__inner">
-                    <header className="page-header">
-                        <div className="page-header__text">
-                            <p className="page-header__greeting">{getGreeting()}</p>
-                            <h1 className="page-header__title">{view.title}</h1>
-                            <p className="page-header__meta">
-                                {formatToday()}
-                                {summary}
-                            </p>
-                        </div>
+                    <header className="topbar">
+                        <p className="topbar__greeting">
+                            {getGreeting()}
+                            <span className="topbar__date">{formatToday()}</span>
+                        </p>
                         {counts.all > 0 && <SearchField value={query} onChange={setQuery} inputRef={searchRef} />}
                     </header>
 
-                    <div className="workspace">
-                        <div className="workspace__primary">
-                            <TaskComposer onCreate={handleCreate} inputRef={composerRef} />
+                    <div className="page-title">
+                        <div className="page-title__text">
+                            <h1 className="page-title__heading">{view.title}</h1>
+                            <p className="page-title__summary">{summary}</p>
+                        </div>
+                        <button type="button" className="btn btn--primary page-title__action" onClick={startNewTask}>
+                            <PlusIcon size={16} strokeWidth="2.25" />
+                            New task
+                        </button>
+                    </div>
 
-                            <section key={view.id} className="tasks" aria-label={view.title}>
-                                {content}
-                            </section>
+                    <StatsBar todos={todos} counts={counts} />
 
-                            {showFooter && (
-                                <footer className="list-footer">
-                                    <button
-                                        type="button"
-                                        className="btn btn--ghost btn--sm"
-                                        onClick={() => setConfirmingClear(true)}
-                                    >
-                                        Clear completed
-                                    </button>
-                                </footer>
-                            )}
+                    <section className="board" aria-labelledby="board-title" data-spotlight>
+                        <div className="board__toolbar">
+                            <div className="board__heading">
+                                <h2 id="board-title" className="board__title">
+                                    {view.id === "completed" ? "Completed tasks" : "Open tasks"}
+                                </h2>
+                                {status === "ready" && <span className="board__count">{viewCount}</span>}
+                            </div>
+                            {status === "ready" && viewCount > 1 && <SortMenu value={sortOrder} onChange={handleSortChange} />}
                         </div>
 
-                        <Overview
-                            todos={todos}
-                            counts={counts}
-                            isReady={status === "ready"}
-                            onNewTask={shortcuts.n}
-                            onSearch={shortcuts["/"]}
-                            onLocateTask={handleLocateTask}
-                        />
-                    </div>
+                        {view.id === TODO_VIEW.id && (
+                            <TaskComposer
+                                onCreate={handleCreate}
+                                inputRef={composerRef}
+                                focusRequest={composerFocusRequest}
+                                onFocusHandled={clearComposerFocusRequest}
+                            />
+                        )}
+
+                        <div key={view.id} className="tasks">
+                            {content}
+                        </div>
+
+                        {showFooter && (
+                            <footer className="board__footer">
+                                <span>{pluralize(counts.completed, "completed task")}</span>
+                                <button
+                                    type="button"
+                                    className="btn btn--ghost btn--sm"
+                                    onClick={() => setConfirmingClear(true)}
+                                >
+                                    Clear completed
+                                </button>
+                            </footer>
+                        )}
+                    </section>
                 </div>
             </main>
 

@@ -28,7 +28,7 @@ function handleListKeyDown(event) {
 
 export default function TaskList({ tasks, highlight, departingIds, ...handlers }) {
     return (
-        <div className="task-list" data-spotlight>
+        <div className="task-list">
             <div className="task-list__header" aria-hidden="true">
                 <span>Task</span>
                 <span>Added</span>

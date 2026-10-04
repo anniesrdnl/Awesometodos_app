@@ -33,6 +33,25 @@ export const TrophyIcon = (props) => (
     </Icon>
 );
 
+export const CalendarIcon = (props) => (
+    <Icon {...props}>
+        <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+        <path d="M3.5 10h17M8 3v4M16 3v4" />
+    </Icon>
+);
+
+export const TrendIcon = (props) => (
+    <Icon {...props}><path d="m3.5 17 5.5-5.5 4 4 7.5-7.5M15 8h5.5v5.5" /></Icon>
+);
+
+export const SortIcon = (props) => (
+    <Icon {...props}><path d="M7 4v16M3.5 7.5 7 4l3.5 3.5M17 20V4M13.5 16.5 17 20l3.5-3.5" /></Icon>
+);
+
+export const ChevronDownIcon = (props) => (
+    <Icon {...props}><path d="m6 9 6 6 6-6" /></Icon>
+);
+
 export const ArrowRightIcon = (props) => (
     <Icon {...props}><path d="M5 12h14M13 6l6 6-6 6" /></Icon>
 );
