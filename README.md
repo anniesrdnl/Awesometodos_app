@@ -12,7 +12,7 @@ A calm, focused task manager built with React and Express. Add, complete, edit a
 - **Inline editing** – rename a task in place with the edit button or a double-click. `Enter` saves and `Esc` cancels.
 - **To do and Completed** – checking a task off moves it from *To do* to *Completed*, with a short animation and an *Undo* option. Unchecking it sends it back.
 - **Search** – filter either view instantly by keyword (`/`). The current view lives in the URL, so refreshes and the back button behave as expected.
-- **Loyal pink theme** – a soft palette of blush, rose, coral, peach and cream with deep berry text, elegant serif headings, an animated ambient background and light and dark modes.
+- **Loyal pink theme** – a soft palette of blush, rose, coral, peach and cream with deep berry text, Poppins typography, an animated ambient background and light and dark modes.
 - **Forgiving deletes** – deleted tasks can be restored with *Undo* for five seconds. Clearing all completed tasks asks for confirmation first.
 - **Dashboard summary** – cards for open tasks, completed tasks, completion rate and a 7-day chart of tasks added. Cards link to their views and the chart shows details on hover.
 - **Sorting** – order the list by newest, oldest or A to Z. Your choice is remembered on this device.
