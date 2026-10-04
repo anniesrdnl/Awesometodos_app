@@ -1,5 +1,5 @@
 import { VIEWS } from "../lib/tasks";
-import { CheckCircleIcon, CheckIcon, ListIcon } from "./Icon";
+import { CheckCircleIcon, ListIcon } from "./Icon";
 
 const VIEW_ICONS = { active: ListIcon, completed: CheckCircleIcon };
 
@@ -7,9 +7,6 @@ export default function Sidebar({ currentView, counts }) {
     return (
         <aside className="sidebar">
             <div className="brand">
-                <span className="brand__mark" aria-hidden="true">
-                    <CheckIcon size={20} strokeWidth="2.5" />
-                </span>
                 <span className="brand__name">Awesome Todos</span>
             </div>
 
