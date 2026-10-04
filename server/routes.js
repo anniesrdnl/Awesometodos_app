@@ -32,13 +32,28 @@ router.delete("/todos/:id", async(req, res) => {
 router.put("/todos/:id", async(req, res) => {
     const collection = getCollection("todos");
     const _id = new ObjectId(req.params.id);
-    const { status } = req.body;
+    const { status, todo } = req.body;
+    const changes = {};
 
-    if (typeof status !== "boolean") {
-        return res.status(400).json({ mssg: "invalid status" });
+    if (status !== undefined) {
+        if (typeof status !== "boolean") {
+            return res.status(400).json({ mssg: "invalid status" });
+        }
+        changes.status = !status;
     }
 
-    const updatedTodo = await collection.updateOne({ _id }, { $set: { status: !status } });
+    if (todo !== undefined) {
+        if (typeof todo !== "string" || !todo.trim()) {
+            return res.status(400).json({ mssg: "invalid todo" });
+        }
+        changes.todo = todo.trim();
+    }
+
+    if (Object.keys(changes).length === 0) {
+        return res.status(400).json({ mssg: "nothing to update" });
+    }
+
+    const updatedTodo = await collection.updateOne({ _id }, { $set: changes });
     res.status(200).json(updatedTodo);
 });
 module.exports = router;
