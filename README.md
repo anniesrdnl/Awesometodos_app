@@ -65,7 +65,7 @@ A calm, focused task manager built with React and Express. Add, complete, edit a
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 20.19 or later (required by Vite 7)
+- [Node.js](https://nodejs.org/) 20.19 or later (required by Vite 7 and the MongoDB driver)
 - A MongoDB database, either local or hosted on [MongoDB Atlas](https://www.mongodb.com/atlas)
 
 ### 1. Clone the repository
