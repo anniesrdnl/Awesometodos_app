@@ -16,7 +16,10 @@ export default function Sidebar({ currentView, counts }) {
             </div>
 
             <nav className="view-nav" aria-label="Task views">
-                <ul className="view-nav__list">
+                <ul
+                    className="view-nav__list"
+                    style={{ "--active-index": VIEWS.findIndex((view) => view.id === currentView.id) }}
+                >
                     {VIEWS.map((view) => {
                         const ViewIcon = VIEW_ICONS[view.id];
                         return (

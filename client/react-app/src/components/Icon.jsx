@@ -26,6 +26,10 @@ export const PlusIcon = (props) => (
     <Icon {...props}><path d="M12 5v14M5 12h14" /></Icon>
 );
 
+export const ArrowRightIcon = (props) => (
+    <Icon {...props}><path d="M5 12h14M13 6l6 6-6 6" /></Icon>
+);
+
 export const SearchIcon = (props) => (
     <Icon {...props}><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></Icon>
 );

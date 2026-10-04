@@ -13,10 +13,17 @@ function focusNeighbourOf(row) {
 export default function TaskItem({ task, highlight, isDeparting, onToggle, onRename, onDelete, onDeparted }) {
     const [isEditing, setEditing] = useState(false);
     const [isRemoving, setRemoving] = useState(false);
+    const rowRef = useRef(null);
     const editButtonRef = useRef(null);
     const shouldRestoreFocus = useRef(false);
     const createdAt = getCreatedAt(task._id);
     const isCompleted = Boolean(task.status);
+
+    useEffect(() => {
+        if (highlight !== "located") return;
+        rowRef.current.scrollIntoView({ block: "center", behavior: "smooth" });
+        rowRef.current.querySelector(".checkbox__input")?.focus({ preventScroll: true });
+    }, [highlight]);
 
     useEffect(() => {
         if (!isEditing && shouldRestoreFocus.current) {
@@ -48,6 +55,7 @@ export default function TaskItem({ task, highlight, isDeparting, onToggle, onRen
 
     return (
         <li
+            ref={rowRef}
             className={cx(
                 "task-row",
                 isCompleted && "is-completed",

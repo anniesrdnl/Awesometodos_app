@@ -128,6 +128,12 @@ export default function App() {
         );
     };
 
+    const handleLocateTask = (task) => {
+        if (!view.matches(task)) window.location.hash = "#/";
+        setQuery("");
+        setHighlight({ id: task._id, kind: "located" });
+    };
+
     const handleDelete = (task) => {
         const undo = removeTodo(task);
         notify({
@@ -220,7 +226,7 @@ export default function App() {
                         <div className="workspace__primary">
                             <TaskComposer onCreate={handleCreate} inputRef={composerRef} />
 
-                            <section className="tasks" aria-label={view.title}>
+                            <section key={view.id} className="tasks" aria-label={view.title}>
                                 {content}
                             </section>
 
@@ -237,7 +243,14 @@ export default function App() {
                             )}
                         </div>
 
-                        <Overview todos={todos} counts={counts} isReady={status === "ready"} />
+                        <Overview
+                            todos={todos}
+                            counts={counts}
+                            isReady={status === "ready"}
+                            onNewTask={shortcuts.n}
+                            onSearch={shortcuts["/"]}
+                            onLocateTask={handleLocateTask}
+                        />
                     </div>
                 </div>
             </main>

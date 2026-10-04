@@ -1,11 +1,19 @@
+import { useState } from "react";
+import { cx } from "../lib/tasks";
+
 export default function Checkbox({ checked, onChange, label }) {
+    const [hasInteracted, setInteracted] = useState(false);
+
     return (
-        <span className="checkbox">
+        <span className={cx("checkbox", hasInteracted && "is-interactive")}>
             <input
                 type="checkbox"
                 className="checkbox__input"
                 checked={checked}
-                onChange={onChange}
+                onChange={(event) => {
+                    setInteracted(true);
+                    onChange(event);
+                }}
                 aria-label={label}
             />
             <span className="checkbox__box" aria-hidden="true">
