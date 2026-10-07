@@ -1095,12 +1095,8 @@ kbd {
     border-radius: var(--radius-lg);
 }
 
-.view-nav__link:hover {
-    border-color: var(--color-border);
-    background: var(--color-surface-solid);
-    box-shadow: var(--shadow-sm);
-    transform: translateX(4px);
-}
+.view-nav__link:hover { background: var(--color-fill); transform: none; }
+.view-nav__link:active { transform: scale(0.98); }
 
 .view-nav__icon {
     box-sizing: border-box;
@@ -1112,13 +1108,10 @@ kbd {
     transition: background-color var(--duration-fast), color var(--duration-fast), transform var(--duration-base) var(--ease-spring);
 }
 
-.view-nav__link:hover .view-nav__icon {
-    background: var(--color-accent-soft);
-    color: var(--color-accent-fg);
-    transform: rotate(-8deg) scale(1.08);
-}
+.view-nav__link:hover .view-nav__icon { background: var(--color-fill-strong); transform: none; }
 
-.view-nav__link[aria-current="page"] {
+.view-nav__link[aria-current="page"],
+.view-nav__link[aria-current="page"]:hover {
     border-color: transparent;
     background: linear-gradient(135deg, #9aa76c 0%, #838f58 100%);
     color: var(--color-on-accent);
