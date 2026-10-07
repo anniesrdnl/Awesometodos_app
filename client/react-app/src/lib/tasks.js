@@ -3,6 +3,7 @@ export const MIN_TITLE_LENGTH = 4;
 export const VIEWS = [
     { id: "active", label: "To do", title: "To do", href: "#/", matches: (task) => !task.status },
     { id: "completed", label: "Completed", title: "Completed", href: "#/completed", matches: (task) => Boolean(task.status) },
+    { id: "calendar", label: "Calendar", title: "Calendar", href: "#/calendar", matches: (task) => Boolean(task.dueDate) },
 ];
 
 export const getViewFor = (task) => VIEWS.find((view) => view.matches(task));
@@ -31,19 +32,6 @@ function startOfDay(date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-// Number of tasks created on each of the last few days, oldest first.
-export function getRecentActivity(todos, days = 7) {
-    const today = startOfDay(new Date());
-    return Array.from({ length: days }, (_, index) => {
-        const date = new Date(today);
-        date.setDate(today.getDate() - (days - 1 - index));
-        const count = todos.filter((todo) => startOfDay(getCreatedAt(todo._id)).getTime() === date.getTime()).length;
-        return { date, count };
-    });
-}
-
-export const formatShortDate = (date) => date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
-
 export function formatCreatedAt(date, now = new Date()) {
     const daysAgo = Math.round((startOfDay(now) - startOfDay(date)) / DAY_MS);
     if (daysAgo === 0) return "Today";
@@ -56,16 +44,38 @@ export function formatCreatedAt(date, now = new Date()) {
     });
 }
 
-export function getGreeting() {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
+// Due dates are local calendar days stored as "YYYY-MM-DD".
+export function toDateKey(date) {
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${date.getFullYear()}-${month}-${day}`;
 }
 
-export const formatToday = () =>
+export function fromDateKey(key) {
+    const [year, month, day] = key.split("-").map(Number);
+    return new Date(year, month - 1, day);
+}
+
+export function formatDueDate(key, now = new Date()) {
+    const daysAway = Math.round((fromDateKey(key) - startOfDay(now)) / DAY_MS);
+    if (daysAway === 0) return "Today";
+    if (daysAway === 1) return "Tomorrow";
+    if (daysAway === -1) return "Yesterday";
+
+    const date = fromDateKey(key);
+    return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: date.getFullYear() === now.getFullYear() ? undefined : "numeric",
+    });
+}
+
+export const isOverdue = (task, now = new Date()) =>
+    Boolean(task.dueDate) && !task.status && task.dueDate < toDateKey(now);
+
+export const formatToday =() =>
     new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
-export const pluralize = (count, word) => `${count} ${count === 1 ? word : `${word}s`}`;
+export const pluralize = (count, word, plural = `${word}s`) => `${count} ${count === 1 ? word : plural}`;
 
 export const cx = (...classNames) => classNames.filter(Boolean).join(" ");

@@ -1,24 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import AllDoneState from "./components/AllDoneState";
-import Backdrop from "./components/Backdrop";
+import Calendar from "./components/Calendar";
 import ConfirmDialog from "./components/ConfirmDialog";
-import { AlertIcon, CheckCircleIcon, InboxIcon, PlusIcon, SearchIcon } from "./components/Icon";
+import { AlertIcon, CheckCircleIcon, InboxIcon, SearchIcon } from "./components/Icon";
 import SearchField from "./components/SearchField";
 import Sidebar from "./components/Sidebar";
 import SortMenu from "./components/SortMenu";
 import StateMessage from "./components/StateMessage";
-import StatsBar from "./components/StatsBar";
 import TaskComposer from "./components/TaskComposer";
 import TaskList, { TaskListSkeleton } from "./components/TaskList";
 import Toaster from "./components/Toaster";
 import { useHashView } from "./hooks/useHashView";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-import { usePointerEffects } from "./hooks/usePointerEffects";
 import { UNDO_WINDOW_MS, useTodos } from "./hooks/useTodos";
 import { useToasts } from "./hooks/useToasts";
-import { launchConfetti } from "./lib/confetti";
-import { flyToView } from "./lib/flyToView";
-import { formatToday, getGreeting, getViewFor, pluralize, SORT_OPTIONS, VIEWS } from "./lib/tasks";
+import { formatDueDate, formatToday, pluralize, SORT_OPTIONS, toDateKey, VIEWS } from "./lib/tasks";
 
 const HIGHLIGHT_MS = 1600;
 const NO_IDS = new Set();
@@ -34,40 +29,59 @@ function readSortPreference() {
     }
 }
 
-function getEmptyState(view, query) {
+function getEmptyState(view, query, counts) {
     if (query) {
         return {
-            icon: <SearchIcon size={22} />,
+            icon: <SearchIcon size={20} />,
             title: "No matching tasks",
-            description: `Nothing in ${view.title.toLowerCase()} matches “${query}”.`,
+            description: `Nothing in ${view.title} matches “${query}”. Try another word.`,
             action: "clear-search",
+        };
+    }
+    if (view.id === "calendar") {
+        return {
+            icon: <InboxIcon size={20} />,
+            title: "Nothing due",
+            description: "No tasks on this day. Add a due date to a task to see it here.",
         };
     }
     if (view.id === "completed") {
         return {
-            icon: <CheckCircleIcon size={22} />,
+            icon: <CheckCircleIcon size={20} />,
             title: "Nothing completed yet",
-            description: "Check off a task and it will land here.",
+            description: "Tasks you check off will show up here.",
+        };
+    }
+    if (counts.all > 0) {
+        return {
+            icon: <CheckCircleIcon size={20} />,
+            title: "All done",
+            description: `You've completed ${pluralize(counts.completed, "task")}. Add what's next whenever you're ready.`,
+            action: "view-completed",
         };
     }
     return {
-        icon: <InboxIcon size={22} />,
-        title: "Your list is clear",
-        description: "Add your first task to start getting things done.",
-        action: "add-task",
+        icon: <InboxIcon size={20} />,
+        title: "Start with one task",
+        description: "Type it in the field above and press Enter.",
     };
 }
 
-function centerOf(element) {
-    const rect = element.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+function EmptyStateAction({ action, onClearSearch }) {
+    if (action === "clear-search") {
+        return <button type="button" className="btn btn--secondary" onClick={onClearSearch}>Clear search</button>;
+    }
+    if (action === "view-completed") {
+        return <a className="btn btn--secondary" href="#/completed">View completed</a>;
+    }
+    return null;
 }
 
 export default function App() {
     const view = useHashView();
     const { toasts, notify, dismiss } = useToasts();
     const reportError = useCallback((message) => notify({ message, tone: "error", duration: 6000 }), [notify]);
-    const { todos, status, reload, addTodo, toggleTodo, renameTodo, removeTodo, removeTodos } =
+    const { todos, status, reload, addTodo, toggleTodo, renameTodo, setDueDate, removeTodo, removeTodos } =
         useTodos({ onError: reportError });
 
     const [query, setQuery] = useState("");
@@ -75,6 +89,7 @@ export default function App() {
     const [departing, setDeparting] = useState({ viewId: view.id, ids: NO_IDS });
     const [isConfirmingClear, setConfirmingClear] = useState(false);
     const [announcement, setAnnouncement] = useState("");
+    const [selectedDate, setSelectedDate] = useState(() => toDateKey(new Date()));
     const [sortOrder, setSortOrder] = useState(readSortPreference);
     const [composerFocusRequest, setComposerFocusRequest] = useState(0);
     const composerRef = useRef(null);
@@ -91,7 +106,6 @@ export default function App() {
         "/": () => searchRef.current?.focus(),
     }), [startNewTask]);
     useKeyboardShortcuts(shortcuts);
-    usePointerEffects();
 
     useEffect(() => {
         if (!highlight) return;
@@ -101,37 +115,35 @@ export default function App() {
 
     const counts = useMemo(() => {
         const completed = todos.filter((todo) => todo.status).length;
-        return { all: todos.length, active: todos.length - completed, completed };
+        const scheduled = todos.filter((todo) => todo.dueDate && !todo.status).length;
+        return { all: todos.length, active: todos.length - completed, completed, calendar: scheduled };
     }, [todos]);
 
     const searchTerm = query.trim().toLowerCase();
     const matchesSearch = (task) => task.todo.toLowerCase().includes(searchTerm);
     const departingIds = departing.viewId === view.id ? departing.ids : NO_IDS;
     const sortOption = SORT_OPTIONS.find((option) => option.id === sortOrder);
+    const isCalendarView = view.id === "calendar";
     const visibleTasks = todos
         .filter((task) => (view.matches(task) || departingIds.has(task._id)) && matchesSearch(task))
+        .filter((task) => !isCalendarView || task.dueDate === selectedDate)
         .sort(sortOption.compare);
     const leavingIds = new Set(visibleTasks.filter((task) => !view.matches(task)).map((task) => task._id));
 
-    const handleCreate = async (title) => {
-        const created = await addTodo(title);
-        if (view.matches(created) && matchesSearch(created)) {
+    const handleCreate = async (title, dueDate) => {
+        const created = await addTodo(title, dueDate);
+        if (matchesSearch(created)) {
             setHighlight({ id: created._id, kind: "added" });
         } else {
             notify({
-                message: "Task added to To do",
-                action: { label: "Show", onClick: () => { setQuery(""); window.location.hash = TODO_VIEW.href; } },
+                message: "Task added",
+                action: { label: "Show", onClick: () => setQuery("") },
             });
         }
     };
 
-    const handleToggle = (task, origin) => {
+    const handleToggle = (task) => {
         const updated = { ...task, status: !task.status };
-        const destination = getViewFor(updated);
-        const title = origin.closest(".task-row")?.querySelector(".task__title-text");
-
-        if (updated.status && counts.active === 1) launchConfetti(centerOf(origin));
-        flyToView({ source: title ?? origin, href: destination.href, label: task.todo, isCompleting: updated.status });
 
         if (!view.matches(updated)) {
             setDeparting((current) => ({
@@ -143,7 +155,7 @@ export default function App() {
 
         toggleTodo(task).then(
             () => notify({
-                message: updated.status ? "Moved to Completed" : "Moved back to To do",
+                message: updated.status ? "Task completed" : "Moved back to To do",
                 group: "move",
                 action: {
                     label: "Undo",
@@ -172,6 +184,16 @@ export default function App() {
                 setAnnouncement("Task updated");
             },
             () => reportError("Couldn't save your changes. Please try again."),
+        );
+    };
+
+    const handleSetDueDate = (task, dueDate) => {
+        setDueDate(task, dueDate).then(
+            () => {
+                setHighlight({ id: task._id, kind: "updated" });
+                setAnnouncement(dueDate ? `Due ${formatDueDate(dueDate)}` : "Due date removed");
+            },
+            () => reportError("Couldn't save the due date. Please try again."),
         );
     };
 
@@ -210,8 +232,9 @@ export default function App() {
         }
     };
 
-    const isAllDone = status === "ready" && counts.all > 0 && counts.active === 0;
-    const showFooter = status === "ready" && counts.completed > 0 && view.id === "completed";
+    const isReady = status === "ready";
+    const isCompletedView = view.id === "completed";
+    const viewCount = isCalendarView ? visibleTasks.length : isCompletedView ? counts.completed : counts.active;
 
     let content;
     if (status === "loading") {
@@ -220,7 +243,7 @@ export default function App() {
         content = (
             <StateMessage
                 tone="error"
-                icon={<AlertIcon size={22} />}
+                icon={<AlertIcon size={20} />}
                 title="Couldn't load your tasks"
                 description="Check your connection and try again."
                 action={<button type="button" className="btn btn--secondary" onClick={reload}>Try again</button>}
@@ -234,84 +257,45 @@ export default function App() {
                 departingIds={leavingIds}
                 onToggle={handleToggle}
                 onRename={handleRename}
+                onSetDueDate={handleSetDueDate}
                 onDelete={handleDelete}
                 onDeparted={handleDeparted}
             />
         );
-    } else if (isAllDone && view.id === TODO_VIEW.id && !searchTerm) {
-        content = <AllDoneState completedCount={counts.completed} onCelebrate={() => launchConfetti()} />;
     } else {
-        const { action, ...emptyState } = getEmptyState(view, query.trim());
+        const { action, ...emptyState } = getEmptyState(view, query.trim(), counts);
         content = (
             <StateMessage
                 {...emptyState}
-                action={action && (
-                    <button
-                        type="button"
-                        className="btn btn--secondary"
-                        onClick={action === "clear-search" ? () => setQuery("") : startNewTask}
-                    >
-                        {action === "clear-search" ? "Clear search" : "Add a task"}
-                    </button>
-                )}
+                action={action && <EmptyStateAction action={action} onClearSearch={() => setQuery("")} />}
             />
         );
     }
 
-    let summary = "Loading your tasks…";
-    if (status === "error") summary = "Your tasks couldn't be loaded.";
-    else if (status === "ready" && view.id === "completed") {
-        summary = counts.completed > 0
-            ? `You've finished ${pluralize(counts.completed, "task")}. Uncheck one to move it back.`
-            : "Tasks you check off will appear here.";
-    } else if (status === "ready") {
-        if (counts.all === 0) summary = "Plan your day by adding your first task.";
-        else if (isAllDone) summary = "Everything is done. Nice work!";
-        else summary = `You have ${pluralize(counts.active, "open task")}. Check one off to move it to Completed.`;
-    }
-    const viewCount = view.id === "completed" ? counts.completed : counts.active;
+    let listSummary = isCompletedView ? pluralize(viewCount, "completed task") : pluralize(viewCount, "open task");
+    if (isCalendarView) listSummary = `${pluralize(viewCount, "task")} · ${formatDueDate(selectedDate)}`;
+    if (searchTerm) listSummary = `${pluralize(visibleTasks.length, "match", "matches")} in ${view.title}`;
 
     return (
         <div className="app">
-            <Backdrop />
-
-            <Sidebar currentView={view} counts={counts} />
+            <Sidebar currentView={view} counts={counts} isReady={isReady} />
 
             <main className="main">
                 <div className="main__inner">
-                    <header className="topbar">
-                        <p className="topbar__greeting">
-                            {getGreeting()}
-                            <span className="topbar__date">{formatToday()}</span>
-                        </p>
+                    <header className="page-header">
+                        <div className="page-header__text">
+                            <p className="page-header__date">{formatToday()}</p>
+                            <h1 className="page-header__title">{view.title}</h1>
+                        </div>
                         {counts.all > 0 && <SearchField value={query} onChange={setQuery} inputRef={searchRef} />}
                     </header>
 
-                    <div className="page-title">
-                        <div className="page-title__text">
-                            <h1 className="page-title__heading">{view.title}</h1>
-                            <p className="page-title__summary">{summary}</p>
-                        </div>
-                        <button type="button" className="btn btn--primary page-title__action" onClick={startNewTask}>
-                            <PlusIcon size={16} strokeWidth="2.25" />
-                            New task
-                        </button>
-                    </div>
+                    <section className="board" aria-labelledby="board-title">
+                        <h2 id="board-title" className="visually-hidden">
+                            {isCalendarView ? "Tasks by due date" : isCompletedView ? "Completed tasks" : "Open tasks"}
+                        </h2>
 
-                    <StatsBar todos={todos} counts={counts} />
-
-                    <section className="board" aria-labelledby="board-title" data-spotlight>
-                        <div className="board__toolbar">
-                            <div className="board__heading">
-                                <h2 id="board-title" className="board__title">
-                                    {view.id === "completed" ? "Completed tasks" : "Open tasks"}
-                                </h2>
-                                {status === "ready" && <span className="board__count">{viewCount}</span>}
-                            </div>
-                            {status === "ready" && viewCount > 1 && <SortMenu value={sortOrder} onChange={handleSortChange} />}
-                        </div>
-
-                        {view.id === TODO_VIEW.id && (
+                        {!isCompletedView && !isCalendarView && (
                             <TaskComposer
                                 onCreate={handleCreate}
                                 inputRef={composerRef}
@@ -320,22 +304,31 @@ export default function App() {
                             />
                         )}
 
+                        {isCalendarView && isReady && (
+                            <Calendar todos={todos} selected={selectedDate} onSelect={setSelectedDate} />
+                        )}
+
+                        {isReady && visibleTasks.length > 0 && (
+                            <div className="board__toolbar">
+                                <p className="board__summary">{listSummary}</p>
+                                <div className="board__actions">
+                                    {isCompletedView && (
+                                        <button
+                                            type="button"
+                                            className="btn btn--ghost btn--sm"
+                                            onClick={() => setConfirmingClear(true)}
+                                        >
+                                            Clear completed
+                                        </button>
+                                    )}
+                                    {viewCount > 1 && <SortMenu value={sortOrder} onChange={handleSortChange} />}
+                                </div>
+                            </div>
+                        )}
+
                         <div key={view.id} className="tasks">
                             {content}
                         </div>
-
-                        {showFooter && (
-                            <footer className="board__footer">
-                                <span>{pluralize(counts.completed, "completed task")}</span>
-                                <button
-                                    type="button"
-                                    className="btn btn--ghost btn--sm"
-                                    onClick={() => setConfirmingClear(true)}
-                                >
-                                    Clear completed
-                                </button>
-                            </footer>
-                        )}
                     </section>
                 </div>
             </main>
@@ -345,7 +338,7 @@ export default function App() {
             <ConfirmDialog
                 open={isConfirmingClear}
                 title={`Delete ${pluralize(counts.completed, "completed task")}?`}
-                description="This permanently removes them from your list. This can't be undone."
+                description="This permanently removes them from your list and can't be undone."
                 confirmLabel="Delete"
                 onConfirm={handleClearCompleted}
                 onCancel={() => setConfirmingClear(false)}

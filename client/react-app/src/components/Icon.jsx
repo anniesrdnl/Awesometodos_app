@@ -26,34 +26,12 @@ export const PlusIcon = (props) => (
     <Icon {...props}><path d="M12 5v14M5 12h14" /></Icon>
 );
 
-export const TrophyIcon = (props) => (
-    <Icon {...props}>
-        <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0Z" />
-        <path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3" />
-    </Icon>
-);
-
-export const CalendarIcon = (props) => (
-    <Icon {...props}>
-        <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
-        <path d="M3.5 10h17M8 3v4M16 3v4" />
-    </Icon>
-);
-
-export const TrendIcon = (props) => (
-    <Icon {...props}><path d="m3.5 17 5.5-5.5 4 4 7.5-7.5M15 8h5.5v5.5" /></Icon>
-);
-
 export const SortIcon = (props) => (
     <Icon {...props}><path d="M7 4v16M3.5 7.5 7 4l3.5 3.5M17 20V4M13.5 16.5 17 20l3.5-3.5" /></Icon>
 );
 
 export const ChevronDownIcon = (props) => (
     <Icon {...props}><path d="m6 9 6 6 6-6" /></Icon>
-);
-
-export const ArrowRightIcon = (props) => (
-    <Icon {...props}><path d="M5 12h14M13 6l6 6-6 6" /></Icon>
 );
 
 export const SearchIcon = (props) => (
@@ -78,7 +56,22 @@ export const ListIcon = (props) => (
     <Icon {...props}><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" /></Icon>
 );
 
-export const CheckCircleIcon = (props) => (
+export const CalendarIcon = (props) => (
+    <Icon {...props}>
+        <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+        <path d="M3.5 10h17M8 3v4M16 3v4" />
+    </Icon>
+);
+
+export const ChevronLeftIcon = (props) => (
+    <Icon {...props}><path d="m15 6-6 6 6 6" /></Icon>
+);
+
+export const ChevronRightIcon = (props) => (
+    <Icon {...props}><path d="m9 6 6 6-6 6" /></Icon>
+);
+
+export const CheckCircleIcon =(props) => (
     <Icon {...props}><circle cx="12" cy="12" r="8.5" /><path d="m8.5 12 2.5 2.5 4.5-5" /></Icon>
 );
 

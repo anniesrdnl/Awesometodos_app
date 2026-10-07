@@ -1,24 +1,42 @@
+import { useId } from "react";
 import { VIEWS } from "../lib/tasks";
-import { CheckCircleIcon, ListIcon } from "./Icon";
+import { CalendarIcon, CheckCircleIcon, ListIcon } from "./Icon";
 
-const VIEW_ICONS = { active: ListIcon, completed: CheckCircleIcon };
+const VIEW_ICONS = { active: ListIcon, completed: CheckCircleIcon, calendar: CalendarIcon };
 
-export default function Sidebar({ currentView, counts }) {
+function Progress({ completed, total }) {
+    const id = useId();
+    const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+    return (
+        <div className="progress">
+            <div className="progress__header">
+                <span id={id} className="progress__label">Progress</span>
+                <span className="progress__value">{percent}%</span>
+            </div>
+            <div
+                className="progress__track"
+                role="progressbar"
+                aria-labelledby={id}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={percent}
+                aria-valuetext={`${completed} of ${total} tasks completed`}
+            >
+                <span className="progress__fill" style={{ "--value": `${percent}%` }} />
+            </div>
+            <p className="progress__caption">{completed} of {total} completed</p>
+        </div>
+    );
+}
+
+export default function Sidebar({ currentView, counts, isReady }) {
     return (
         <aside className="sidebar">
-            <div className="brand">
-                <span className="brand__name">Awesome Todos</span>
-            </div>
+            <a className="brand" href={VIEWS[0].href}>Awesome Todos</a>
 
             <nav className="view-nav" aria-label="Task views">
-                <p className="view-nav__heading">Workspace</p>
-                <ul
-                    className="view-nav__list"
-                    style={{
-                        "--active-index": VIEWS.findIndex((view) => view.id === currentView.id),
-                        "--view-count": VIEWS.length,
-                    }}
-                >
+                <ul className="view-nav__list">
                     {VIEWS.map((view) => {
                         const ViewIcon = VIEW_ICONS[view.id];
                         return (
@@ -28,9 +46,13 @@ export default function Sidebar({ currentView, counts }) {
                                     className="view-nav__link"
                                     aria-current={view.id === currentView.id ? "page" : undefined}
                                 >
-                                    <ViewIcon className="view-nav__icon" />
+                                    <ViewIcon className="view-nav__icon" size={18} />
                                     <span className="view-nav__label">{view.label}</span>
-                                    <span className="view-nav__count">{counts[view.id]}</span>
+                                    {isReady && (
+                                        <span key={counts[view.id]} className="view-nav__count">
+                                            {counts[view.id]}
+                                        </span>
+                                    )}
                                 </a>
                             </li>
                         );
@@ -38,6 +60,12 @@ export default function Sidebar({ currentView, counts }) {
                 </ul>
             </nav>
 
+            <div className="sidebar__footer">
+                {isReady && counts.all > 0 && <Progress completed={counts.completed} total={counts.all} />}
+                <p className="sidebar__hint">
+                    <kbd>N</kbd> New task <span aria-hidden="true">·</span> <kbd>/</kbd> Search
+                </p>
+            </div>
         </aside>
     );
 }

@@ -1,10 +1,12 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { validateTitle } from "../lib/tasks";
+import { AlertIcon } from "./Icon";
 
 const keepInputFocus = (event) => event.preventDefault();
 
-export default function TaskEditor({ initialValue, onSave, onCancel }) {
+export default function TaskEditor({ initialValue, initialDueDate, onSave, onCancel }) {
     const [value, setValue] = useState(initialValue);
+    const [dueDate, setDueDate] = useState(initialDueDate ?? "");
     const [error, setError] = useState(null);
     const inputRef = useRef(null);
     const isClosedRef = useRef(false);
@@ -26,7 +28,7 @@ export default function TaskEditor({ initialValue, onSave, onCancel }) {
             setError(problem);
             return false;
         }
-        close(() => onSave(value.trim(), { restoreFocus }));
+        close(() => onSave(value.trim(), dueDate || null, { restoreFocus }));
         return true;
     };
 
@@ -75,8 +77,19 @@ export default function TaskEditor({ initialValue, onSave, onCancel }) {
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? `${id}-error` : undefined}
             />
+            <label htmlFor={`${id}-due`} className="visually-hidden">Due date</label>
+            <input
+                id={`${id}-due`}
+                type="date"
+                className="date-input"
+                value={dueDate}
+                onChange={(event) => setDueDate(event.target.value)}
+                onKeyDown={handleKeyDown}
+            />
             <div className="task-editor__footer">
-                <p id={`${id}-error`} className="field-message is-error" aria-live="polite">{error}</p>
+                <p id={`${id}-error`} className="field-message is-error" aria-live="polite">
+                    {error && <><AlertIcon size={14} /> {error}</>}
+                </p>
                 <div className="task-editor__actions">
                     <button
                         type="button"

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { cx, formatCreatedAt, getCreatedAt } from "../lib/tasks";
+import { cx, formatCreatedAt, formatDueDate, getCreatedAt, isOverdue } from "../lib/tasks";
 import Checkbox from "./Checkbox";
 import IconButton from "./IconButton";
 import { PencilIcon, TrashIcon } from "./Icon";
@@ -10,7 +10,7 @@ function focusNeighbourOf(row) {
     neighbour?.querySelector(".checkbox__input")?.focus();
 }
 
-export default function TaskItem({ task, order, highlight, isDeparting, onToggle, onRename, onDelete, onDeparted }) {
+export default function TaskItem({ task, order, highlight, isDeparting, onToggle, onRename, onSetDueDate, onDelete, onDeparted }) {
     const [isEditing, setEditing] = useState(false);
     const [isRemoving, setRemoving] = useState(false);
     const editButtonRef = useRef(null);
@@ -30,8 +30,9 @@ export default function TaskItem({ task, order, highlight, isDeparting, onToggle
         setEditing(false);
     };
 
-    const handleSave = (title, options) => {
+    const handleSave = (title, dueDate, options) => {
         if (title !== task.todo) onRename(task, title);
+        if (dueDate !== (task.dueDate ?? null)) onSetDueDate(task, dueDate);
         stopEditing(options);
     };
 
@@ -63,12 +64,12 @@ export default function TaskItem({ task, order, highlight, isDeparting, onToggle
                 <div className="task">
                     <Checkbox
                         checked={isCompleted}
-                        onChange={(event) => onToggle(task, event.target)}
+                        onChange={() => onToggle(task)}
                         label={task.todo}
                     />
 
                     {isEditing ? (
-                        <TaskEditor initialValue={task.todo} onSave={handleSave} onCancel={stopEditing} />
+                        <TaskEditor initialValue={task.todo} initialDueDate={task.dueDate} onSave={handleSave} onCancel={stopEditing} />
                     ) : (
                         <>
                             <div className="task__body" onDoubleClick={() => setEditing(true)}>
@@ -79,6 +80,15 @@ export default function TaskItem({ task, order, highlight, isDeparting, onToggle
                                     <span className="visually-hidden">Added </span>
                                     {formatCreatedAt(createdAt)}
                                 </time>
+                                {task.dueDate && (
+                                    <time
+                                        className={cx("task__due", isOverdue(task) && "is-overdue")}
+                                        dateTime={task.dueDate}
+                                    >
+                                        <span className="visually-hidden">Due </span>
+                                        {formatDueDate(task.dueDate)}
+                                    </time>
+                                )}
                             </div>
                             <div className="task__actions">
                                 <IconButton ref={editButtonRef} className="task__edit" label="Edit task" onClick={() => setEditing(true)}>

@@ -29,10 +29,6 @@ function handleListKeyDown(event) {
 export default function TaskList({ tasks, highlight, departingIds, ...handlers }) {
     return (
         <div className="task-list">
-            <div className="task-list__header" aria-hidden="true">
-                <span>Task</span>
-                <span>Added</span>
-            </div>
             <ul className="task-list__items" aria-label="Tasks" onKeyDown={handleListKeyDown}>
                 {tasks.map((task, index) => (
                     <TaskItem

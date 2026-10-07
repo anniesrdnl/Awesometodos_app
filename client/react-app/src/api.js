@@ -23,7 +23,10 @@ function ensureAcknowledged(result) {
 
 export const fetchTodos = () => request("");
 
-export const createTodo = (todo) => request("", { method: "POST", body: { todo } });
+export const createTodo = (todo, dueDate = null) => request("", { method: "POST", body: { todo, dueDate } });
+
+export const setTodoDueDate = (id, dueDate) =>
+    request(`/${id}`, { method: "PUT", body: { dueDate } }).then(ensureAcknowledged);
 
 // The API stores the opposite of the status it receives, so send the current one.
 export const setTodoStatus = (id, completed) =>

@@ -43,8 +43,8 @@ export function useTodos({ onError }) {
         setTodos((current) => [...current, ...items].sort(byCreation));
     }, []);
 
-    const addTodo = useCallback(async (title) => {
-        const created = await api.createTodo(title);
+    const addTodo = useCallback(async (title, dueDate) => {
+        const created = await api.createTodo(title, dueDate);
         setTodos((current) => [...current, created]);
         return created;
     }, []);
@@ -69,7 +69,17 @@ export function useTodos({ onError }) {
         }
     }, [patchTodo]);
 
-    const commitDelete = useCallback(async (id, options) => {
+    const setDueDate = useCallback(async (todo, dueDate) => {
+        patchTodo(todo._id, { dueDate });
+        try {
+            await api.setTodoDueDate(todo._id, dueDate);
+        } catch (error) {
+            patchTodo(todo._id, { dueDate: todo.dueDate ?? null });
+            throw error;
+        }
+    }, [patchTodo]);
+
+    const commitDelete =useCallback(async (id, options) => {
         const pending = pendingDeletes.current.get(id);
         if (!pending) return;
 
@@ -119,5 +129,5 @@ export function useTodos({ onError }) {
         return () => window.removeEventListener("pagehide", flushPendingDeletes);
     }, [commitDelete]);
 
-    return { todos, status, reload, addTodo, toggleTodo, renameTodo, removeTodo, removeTodos };
+    return { todos, status, reload, addTodo, toggleTodo, renameTodo, setDueDate, removeTodo, removeTodos };
 }

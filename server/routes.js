@@ -2,6 +2,11 @@ const express = require("express");
 const router = express.Router();
 const { getCollection } = require("./models/index");
 const { ObjectId } = require("mongodb");
+
+// Due dates are calendar days ("YYYY-MM-DD"), or null for none.
+const isValidDueDate = (value) =>
+    value === null || (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value)));
+
 router.get("/todos", async(req, res) => {
     const collection = await getCollection("todos");
     const todos = await collection.find({}).toArray();
@@ -11,13 +16,15 @@ router.get("/todos", async(req, res) => {
 // POST /todos
 router.post("/todos", async(req, res) => {
         const collection = await getCollection("todos");
-        let { todo } = req.body;
+        let { todo, dueDate = null } = req.body;
 
+        if (!isValidDueDate(dueDate)) {
+            return res.status(400).json({ mssg: "invalid dueDate" });
+        }
 
+        const newTodo = await collection.insertOne({ todo, status: false, dueDate });
 
-        const newTodo = await collection.insertOne({ todo, status: false });
-
-        res.status(201).json({ todo, status: false, _id: newTodo.insertedId });
+        res.status(201).json({ todo, status: false, dueDate, _id: newTodo.insertedId });
     })
     // DELETE /todos/:id
 router.delete("/todos/:id", async(req, res) => {
@@ -32,8 +39,15 @@ router.delete("/todos/:id", async(req, res) => {
 router.put("/todos/:id", async(req, res) => {
     const collection = await getCollection("todos");
     const _id = new ObjectId(req.params.id);
-    const { status, todo } = req.body;
+    const { status, todo, dueDate } = req.body;
     const changes = {};
+
+    if (dueDate !== undefined) {
+        if (!isValidDueDate(dueDate)) {
+            return res.status(400).json({ mssg: "invalid dueDate" });
+        }
+        changes.dueDate = dueDate;
+    }
 
     if (status !== undefined) {
         if (typeof status !== "boolean") {
