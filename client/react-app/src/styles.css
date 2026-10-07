@@ -1,7 +1,6 @@
 /* ==========================================================================
    Design tokens
-   Palette: "Loyal pink" – blush #f4c5d7, rose #e981a4, coral #f9adb7,
-   peach #fec9c3 and cream #faf2dd, grounded by a deep berry for text.
+   Palette: strawberry #f9d1d9 and matcha #838f58, with deep matcha for text.
    ========================================================================== */
 
 :root {
@@ -36,61 +35,61 @@
     --control-height-sm: 2rem;
     --hit-target: 2.5rem;
 
-    --palette-blush: #f4c5d7;
-    --palette-rose: #e981a4;
-    --palette-coral: #f9adb7;
-    --palette-peach: #fec9c3;
-    --palette-cream: #faf2dd;
+    --palette-blush: #f9d1d9;
+    --palette-rose: #838f58;
+    --palette-coral: #f9d1d9;
+    --palette-peach: #fde3e8;
+    --palette-cream: #fdf1f3;
 
-    --color-bg: #fcf6ee;
-    --color-bg-hover: #f7e9e6;
-    --color-surface: #fffcf8;
-    --color-surface-hover: #fdf1f2;
-    --color-surface-raised: #fffcf8;
-    --color-fill: rgb(63 36 48 / 0.06);
-    --color-fill-strong: rgb(63 36 48 / 0.11);
-    --color-border: #f1e1e2;
-    --color-border-strong: #e9c7d3;
-    --color-text: #3f2430;
-    --color-text-secondary: #6e4f5b;
-    --color-text-tertiary: #866470;
-    --color-accent: #e981a4;
-    --color-accent-hover: #e3739a;
-    --color-accent-pressed: #d6618b;
-    --color-accent-fg: #a83c64;
-    --color-accent-soft: #fbe1ea;
-    --color-accent-alt: #f9adb7;
-    --color-on-accent: #3a1f2b;
-    --color-highlight: #ffe5df;
+    --color-bg: #fdf1f3;
+    --color-bg-hover: #f8e1e6;
+    --color-surface: #fffafb;
+    --color-surface-hover: #fdf0f2;
+    --color-surface-raised: #fffafb;
+    --color-fill: rgb(58 65 32 / 0.06);
+    --color-fill-strong: rgb(58 65 32 / 0.11);
+    --color-border: #f1dade;
+    --color-border-strong: #e6bfc8;
+    --color-text: #3a4120;
+    --color-text-secondary: #5d6740;
+    --color-text-tertiary: #67714a;
+    --color-accent: #838f58;
+    --color-accent-hover: #77834e;
+    --color-accent-pressed: #6a7646;
+    --color-accent-fg: #55612f;
+    --color-accent-soft: #f9d1d9;
+    --color-accent-alt: #f9d1d9;
+    --color-on-accent: #1f2410;
+    --color-highlight: #fde6ea;
     --color-danger: #c94541;
     --color-danger-hover: #b8392f;
     --color-danger-pressed: #a92f2b;
     --color-danger-fg: #b3322f;
     --color-danger-soft: #fde4e1;
     --color-on-danger: #ffffff;
-    --color-success-fg: #a8466c;
-    --color-success: #e981a4;
-    --gradient-primary: linear-gradient(135deg, #f5a3c0 0%, #e981a4 55%, #dd6c93 100%);
+    --color-success-fg: #55612f;
+    --color-success: #838f58;
+    --gradient-primary: linear-gradient(135deg, #97a46a 0%, #838f58 55%, #747f4c 100%);
     --gradient-danger: linear-gradient(135deg, #c94541 0%, #a92f2b 100%);
-    --glow-primary: rgb(244 197 215 / 0.9);
-    --glow-secondary: rgb(254 201 195 / 0.85);
-    --dot-color: rgb(63 36 48 / 0.08);
-    --spot-border: rgb(233 129 164 / 0.6);
-    --spot-fill: rgb(244 197 215 / 0.3);
-    --sidebar-bg: rgb(252 246 238 / 0.7);
-    --color-inverse: #3f2430;
-    --color-on-inverse: #fcf3ea;
-    --color-inverse-muted: rgb(252 243 234 / 0.65);
-    --color-inverse-accent: #f4c5d7;
+    --glow-primary: rgb(249 209 217 / 0.9);
+    --glow-secondary: rgb(131 143 88 / 0.18);
+    --dot-color: rgb(58 65 32 / 0.08);
+    --spot-border: rgb(131 143 88 / 0.6);
+    --spot-fill: rgb(249 209 217 / 0.3);
+    --sidebar-bg: rgb(253 241 243 / 0.7);
+    --color-inverse: #3a4120;
+    --color-on-inverse: #fdf1f3;
+    --color-inverse-muted: rgb(253 241 243 / 0.65);
+    --color-inverse-accent: #f9d1d9;
     --color-inverse-hover: rgb(255 255 255 / 0.1);
-    --color-backdrop: rgb(63 36 48 / 0.35);
+    --color-backdrop: rgb(58 65 32 / 0.35);
 
-    --shadow-sm: 0 1px 2px rgb(120 50 80 / 0.05);
-    --shadow-md: 0 1px 2px rgb(120 50 80 / 0.05), 0 6px 16px -6px rgb(120 50 80 / 0.14);
-    --shadow-lg: 0 2px 6px rgb(120 50 80 / 0.06), 0 24px 48px -12px rgb(120 50 80 / 0.28);
-    --shadow-accent: 0 8px 20px -8px rgb(221 108 147 / 0.65);
+    --shadow-sm: 0 1px 2px rgb(58 65 32 / 0.06);
+    --shadow-md: 0 1px 2px rgb(58 65 32 / 0.06), 0 6px 16px -6px rgb(58 65 32 / 0.16);
+    --shadow-lg: 0 2px 6px rgb(58 65 32 / 0.07), 0 24px 48px -12px rgb(58 65 32 / 0.28);
+    --shadow-accent: 0 8px 20px -8px rgb(116 127 76 / 0.6);
     --shadow-danger: 0 8px 20px -8px rgb(201 69 65 / 0.55);
-    --focus-ring: 0 0 0 3px rgb(233 129 164 / 0.35);
+    --focus-ring: 0 0 0 3px rgb(131 143 88 / 0.4);
     --focus-ring-danger: 0 0 0 3px rgb(201 69 65 / 0.2);
 
     --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -103,55 +102,55 @@
     :root {
         color-scheme: dark;
 
-        --color-bg: #1f1418;
-        --color-bg-hover: #2b1c22;
-        --color-surface: #2a1b21;
-        --color-surface-hover: #33222a;
-        --color-surface-raised: #3d2731;
-        --color-fill: rgb(244 197 215 / 0.07);
-        --color-fill-strong: rgb(244 197 215 / 0.12);
-        --color-border: #3d2731;
-        --color-border-strong: #553845;
-        --color-text: #fbeef2;
-        --color-text-secondary: #dcc3cc;
-        --color-text-tertiary: #b99aa6;
-        --color-accent: #f2a7c1;
-        --color-accent-hover: #f6bacf;
-        --color-accent-pressed: #e591b0;
-        --color-accent-fg: #f6b3c9;
-        --color-accent-soft: rgb(244 197 215 / 0.12);
-        --color-accent-alt: #f9adb7;
-        --color-on-accent: #3a1f2b;
-        --color-highlight: rgb(254 201 195 / 0.1);
+        --color-bg: #1b1f12;
+        --color-bg-hover: #262c19;
+        --color-surface: #232917;
+        --color-surface-hover: #2c331e;
+        --color-surface-raised: #333b23;
+        --color-fill: rgb(249 209 217 / 0.07);
+        --color-fill-strong: rgb(249 209 217 / 0.12);
+        --color-border: #333b23;
+        --color-border-strong: #4a5532;
+        --color-text: #f9e8ec;
+        --color-text-secondary: #d9c4c9;
+        --color-text-tertiary: #b5a8a8;
+        --color-accent: #f9d1d9;
+        --color-accent-hover: #fbdfe5;
+        --color-accent-pressed: #f0bcc8;
+        --color-accent-fg: #f9d1d9;
+        --color-accent-soft: rgb(249 209 217 / 0.12);
+        --color-accent-alt: #838f58;
+        --color-on-accent: #2b3216;
+        --color-highlight: rgb(131 143 88 / 0.18);
         --color-danger: #f08a80;
         --color-danger-hover: #f49b92;
         --color-danger-pressed: #e07468;
         --color-danger-fg: #f6a39a;
         --color-danger-soft: rgb(240 138 128 / 0.14);
         --color-on-danger: #2a1015;
-        --color-success-fg: #f6b3c9;
-        --color-success: #f2a7c1;
-        --gradient-primary: linear-gradient(135deg, #f8cddd 0%, #f2a7c1 55%, #e98fb0 100%);
+        --color-success-fg: #f9d1d9;
+        --color-success: #f9d1d9;
+        --gradient-primary: linear-gradient(135deg, #fde3e8 0%, #f9d1d9 55%, #f0bcc8 100%);
         --gradient-danger: linear-gradient(135deg, #f49b92 0%, #e07468 100%);
-        --glow-primary: rgb(233 129 164 / 0.14);
-        --glow-secondary: rgb(254 201 195 / 0.08);
-        --dot-color: rgb(244 197 215 / 0.07);
-        --spot-border: rgb(244 197 215 / 0.55);
-        --spot-fill: rgb(244 197 215 / 0.05);
-        --sidebar-bg: rgb(31 20 24 / 0.7);
-        --color-inverse: #fbeef2;
-        --color-on-inverse: #3f2430;
-        --color-inverse-muted: rgb(63 36 48 / 0.6);
-        --color-inverse-accent: #a83c64;
+        --glow-primary: rgb(131 143 88 / 0.16);
+        --glow-secondary: rgb(249 209 217 / 0.06);
+        --dot-color: rgb(249 209 217 / 0.07);
+        --spot-border: rgb(249 209 217 / 0.55);
+        --spot-fill: rgb(249 209 217 / 0.05);
+        --sidebar-bg: rgb(27 31 18 / 0.7);
+        --color-inverse: #f9e8ec;
+        --color-on-inverse: #2b3216;
+        --color-inverse-muted: rgb(43 50 22 / 0.6);
+        --color-inverse-accent: #55612f;
         --color-inverse-hover: rgb(0 0 0 / 0.07);
         --color-backdrop: rgb(0 0 0 / 0.6);
 
         --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
         --shadow-md: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 16px -6px rgb(0 0 0 / 0.45);
         --shadow-lg: 0 2px 6px rgb(0 0 0 / 0.3), 0 24px 48px -12px rgb(0 0 0 / 0.6);
-        --shadow-accent: 0 8px 20px -8px rgb(242 167 193 / 0.4);
+        --shadow-accent: 0 8px 20px -8px rgb(249 209 217 / 0.35);
         --shadow-danger: 0 8px 20px -8px rgb(240 138 128 / 0.5);
-        --focus-ring: 0 0 0 3px rgb(244 197 215 / 0.3);
+        --focus-ring: 0 0 0 3px rgb(249 209 217 / 0.3);
         --focus-ring-danger: 0 0 0 3px rgb(246 163 154 / 0.25);
     }
 }
