@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Calendar from "./components/Calendar";
+import CalendarPage from "./components/CalendarPage";
 import ConfirmDialog from "./components/ConfirmDialog";
 import { AlertIcon, CheckCircleIcon, InboxIcon, SearchIcon } from "./components/Icon";
 import SearchField from "./components/SearchField";
@@ -36,13 +36,6 @@ function getEmptyState(view, query, counts) {
             title: "No matching tasks",
             description: `Nothing in ${view.title} matches “${query}”. Try another word.`,
             action: "clear-search",
-        };
-    }
-    if (view.id === "calendar") {
-        return {
-            icon: <InboxIcon size={20} />,
-            title: "Nothing due",
-            description: "No tasks on this day. Add a due date to a task to see it here.",
         };
     }
     if (view.id === "completed") {
@@ -126,7 +119,6 @@ export default function App() {
     const isCalendarView = view.id === "calendar";
     const visibleTasks = todos
         .filter((task) => (view.matches(task) || departingIds.has(task._id)) && matchesSearch(task))
-        .filter((task) => !isCalendarView || task.dueDate === selectedDate)
         .sort(sortOption.compare);
     const leavingIds = new Set(visibleTasks.filter((task) => !view.matches(task)).map((task) => task._id));
 
@@ -197,6 +189,11 @@ export default function App() {
         );
     };
 
+    const handleCreateOnDay = async (title, dueDate) => {
+        const created = await addTodo(title, dueDate);
+        setHighlight({ id: created._id, kind: "added" });
+    };
+
     const handleDelete = (task) => {
         const undo = removeTodo(task);
         notify({
@@ -234,7 +231,7 @@ export default function App() {
 
     const isReady = status === "ready";
     const isCompletedView = view.id === "completed";
-    const viewCount = isCalendarView ? visibleTasks.length : isCompletedView ? counts.completed : counts.active;
+    const viewCount = isCompletedView ? counts.completed : counts.active;
 
     let content;
     if (status === "loading") {
@@ -273,8 +270,44 @@ export default function App() {
     }
 
     let listSummary = isCompletedView ? pluralize(viewCount, "completed task") : pluralize(viewCount, "open task");
-    if (isCalendarView) listSummary = `${pluralize(viewCount, "task")} · ${formatDueDate(selectedDate)}`;
     if (searchTerm) listSummary = `${pluralize(visibleTasks.length, "match", "matches")} in ${view.title}`;
+
+    if (isCalendarView) {
+        return (
+            <div className="app">
+                <Sidebar currentView={view} counts={counts} isReady={isReady} />
+
+                <main className="main">
+                    <div className="main__inner main__inner--wide">
+                        <header className="page-header">
+                            <div className="page-header__text">
+                                <p className="page-header__date">{formatToday()}</p>
+                                <h1 className="page-header__title">{view.title}</h1>
+                            </div>
+                        </header>
+
+                        <CalendarPage
+                            todos={todos}
+                            status={status}
+                            reload={reload}
+                            selectedDate={selectedDate}
+                            onSelectDate={setSelectedDate}
+                            highlight={highlight}
+                            onCreate={handleCreateOnDay}
+                            onToggle={handleToggle}
+                            onRename={handleRename}
+                            onSetDueDate={handleSetDueDate}
+                            onDelete={handleDelete}
+                            onDeparted={handleDeparted}
+                        />
+                    </div>
+                </main>
+
+                <Toaster toasts={toasts} onDismiss={dismiss} />
+                <p className="visually-hidden" role="status">{announcement}</p>
+            </div>
+        );
+    }
 
     return (
         <div className="app">
@@ -292,20 +325,16 @@ export default function App() {
 
                     <section className="board" aria-labelledby="board-title">
                         <h2 id="board-title" className="visually-hidden">
-                            {isCalendarView ? "Tasks by due date" : isCompletedView ? "Completed tasks" : "Open tasks"}
+                            {isCompletedView ? "Completed tasks" : "Open tasks"}
                         </h2>
 
-                        {!isCompletedView && !isCalendarView && (
+                        {!isCompletedView && (
                             <TaskComposer
                                 onCreate={handleCreate}
                                 inputRef={composerRef}
                                 focusRequest={composerFocusRequest}
                                 onFocusHandled={clearComposerFocusRequest}
                             />
-                        )}
-
-                        {isCalendarView && isReady && (
-                            <Calendar todos={todos} selected={selectedDate} onSelect={setSelectedDate} />
                         )}
 
                         {isReady && visibleTasks.length > 0 && (

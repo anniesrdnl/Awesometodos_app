@@ -4,9 +4,9 @@ import { AlertIcon, CheckIcon, PlusIcon } from "./Icon";
 
 const SUCCESS_MESSAGE_MS = 2000;
 
-export default function TaskComposer({ onCreate, inputRef, focusRequest, onFocusHandled }) {
+export default function TaskComposer({ onCreate, inputRef, focusRequest, onFocusHandled, presetDueDate = "" }) {
     const [value, setValue] = useState("");
-    const [dueDate, setDueDate] = useState("");
+    const [dueDate, setDueDate] = useState(presetDueDate);
     const [error, setError] = useState(null);
     const [isSubmitting, setSubmitting] = useState(false);
     const [justAdded, setJustAdded] = useState(false);
@@ -43,7 +43,7 @@ export default function TaskComposer({ onCreate, inputRef, focusRequest, onFocus
         try {
             await onCreate(value.trim(), dueDate || null);
             setValue("");
-            setDueDate("");
+            setDueDate(presetDueDate);
             setJustAdded(true);
         } catch {
             setError("Couldn't add the task. Please try again.");

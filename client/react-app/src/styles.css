@@ -2856,3 +2856,30 @@ h3 {
 .calendar__day.is-selected .calendar__dot {
     background-color: var(--color-on-accent);
 }
+
+/* Calendar page */
+.main__inner--wide {
+    max-width: 72rem;
+}
+
+.calendar-page {
+    display: grid;
+    gap: var(--space-6);
+    align-items: start;
+}
+
+.calendar-page .calendar {
+    margin-bottom: 0;
+}
+
+.calendar-page__day-title {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+}
+
+@media (min-width: 1000px) {
+    .calendar-page {
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    }
+}
