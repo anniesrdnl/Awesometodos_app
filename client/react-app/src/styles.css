@@ -277,6 +277,19 @@ ul, ol { padding: 0; list-style: none; }
 
 .brand:hover::before { transform: scale(1.5) rotate(90deg); }
 
+.brand::before { content: none; }
+.brand { padding: 0 var(--space-2); }
+
+.brand__logo {
+    display: block;
+    width: 100%;
+    max-width: 11.5rem;
+    height: auto;
+    transition: transform var(--duration-base) var(--ease-spring), filter var(--duration-base);
+}
+
+.brand:hover .brand__logo { transform: scale(1.03); filter: drop-shadow(0 6px 10px rgb(131 143 88 / 0.3)); }
+
 .view-nav__list { display: grid; gap: var(--space-1); }
 
 .view-nav__link {

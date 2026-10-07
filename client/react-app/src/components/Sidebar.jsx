@@ -33,7 +33,9 @@ function Progress({ completed, total }) {
 export default function Sidebar({ currentView, counts, isReady }) {
     return (
         <aside className="sidebar">
-            <a className="brand" href="#/">Awesome Todos</a>
+            <a className="brand" href="#/" aria-label="Awesome Todos home">
+                <img className="brand__logo" src="/logo.png" alt="Awesome Todos" width="900" height="114" />
+            </a>
 
             <nav className="view-nav" aria-label="Task views">
                 <ul className="view-nav__list">
