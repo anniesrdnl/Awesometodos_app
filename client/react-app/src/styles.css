@@ -1096,64 +1096,47 @@ kbd {
 @media (prefers-reduced-motion: reduce) { .hero__accent { animation: none; } }
 
 /* ==========================================================================
-   Navigation polish: icon chips, gradient active pill
+   Navigation: plain rows, quiet hover, soft active state
    ========================================================================== */
 
-.view-nav__list { gap: var(--space-2); }
+.view-nav__list { gap: 2px; }
 
 .view-nav__link {
-    height: 3rem;
-    padding: 0 var(--space-3) 0 var(--space-2);
-    border: 1px solid transparent;
-    border-radius: var(--radius-lg);
+    height: 2.75rem;
+    padding: 0 var(--space-3);
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    box-shadow: none;
+    color: var(--color-text-secondary);
+    transform: none;
 }
 
-/* Hover is only a colour shift: no background, movement or shadow. */
 .view-nav__link:hover,
 .view-nav__link:active { background: transparent; transform: none; color: var(--color-text); }
 
 .view-nav__icon {
-    box-sizing: border-box;
-    width: 2rem;
-    height: 2rem;
-    padding: 0.4rem;
-    border-radius: 0.75rem;
-    background: var(--color-fill);
-    transition: background-color var(--duration-fast), color var(--duration-fast), transform var(--duration-base) var(--ease-spring);
+    width: 1.125rem;
+    height: 1.125rem;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    transform: none !important;
 }
-
-.view-nav__link:hover .view-nav__icon { color: var(--color-accent-fg); transform: none; }
 
 .view-nav__link[aria-current="page"],
 .view-nav__link[aria-current="page"]:hover,
 .view-nav__link[aria-current="page"]:active {
-    border-color: transparent;
-    background: linear-gradient(135deg, #9aa76c 0%, #838f58 100%);
-    color: var(--color-on-accent);
-    box-shadow: var(--shadow-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-fg);
+    font-weight: 600;
+    box-shadow: none;
     transform: none;
 }
 
-.view-nav__link[aria-current="page"]::before { display: none; }
-
-.view-nav__link[aria-current="page"] .view-nav__icon {
-    background: rgb(255 255 255 / 0.3);
-    color: var(--color-on-accent);
-    transform: none;
-}
-
-.view-nav__link[aria-current="page"] .view-nav__label { font-weight: 600; }
-
-.view-nav__link[aria-current="page"] .view-nav__count {
-    background: rgb(255 255 255 / 0.32);
-    color: var(--color-on-accent);
-}
-
-@media (prefers-color-scheme: dark) {
-    .view-nav__link[aria-current="page"],
-    .view-nav__link[aria-current="page"]:hover,
-    .view-nav__link[aria-current="page"]:active { background: linear-gradient(135deg, #fde3e8 0%, #f9d1d9 100%); }
-}
+.view-nav__link[aria-current="page"] .view-nav__icon { background: none; color: var(--color-accent-fg); }
+.view-nav__link[aria-current="page"]::before { display: block; left: 0; top: 30%; bottom: 30%; width: 3px; }
+.view-nav__link[aria-current="page"] .view-nav__count { background: var(--color-surface-solid); color: var(--color-accent-fg); }
 
 /* ==========================================================================
    Background details: faint dot grid and a few drifting rings
