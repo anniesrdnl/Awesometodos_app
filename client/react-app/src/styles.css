@@ -1108,8 +1108,9 @@ kbd {
     border-radius: var(--radius-lg);
 }
 
-.view-nav__link:hover { background: var(--color-fill); transform: none; }
-.view-nav__link:active { transform: scale(0.98); }
+/* Hover is only a colour shift: no background, movement or shadow. */
+.view-nav__link:hover,
+.view-nav__link:active { background: transparent; transform: none; color: var(--color-text); }
 
 .view-nav__icon {
     box-sizing: border-box;
@@ -1121,10 +1122,11 @@ kbd {
     transition: background-color var(--duration-fast), color var(--duration-fast), transform var(--duration-base) var(--ease-spring);
 }
 
-.view-nav__link:hover .view-nav__icon { background: var(--color-fill-strong); transform: none; }
+.view-nav__link:hover .view-nav__icon { color: var(--color-accent-fg); transform: none; }
 
 .view-nav__link[aria-current="page"],
-.view-nav__link[aria-current="page"]:hover {
+.view-nav__link[aria-current="page"]:hover,
+.view-nav__link[aria-current="page"]:active {
     border-color: transparent;
     background: linear-gradient(135deg, #9aa76c 0%, #838f58 100%);
     color: var(--color-on-accent);
@@ -1148,7 +1150,9 @@ kbd {
 }
 
 @media (prefers-color-scheme: dark) {
-    .view-nav__link[aria-current="page"] { background: linear-gradient(135deg, #fde3e8 0%, #f9d1d9 100%); }
+    .view-nav__link[aria-current="page"],
+    .view-nav__link[aria-current="page"]:hover,
+    .view-nav__link[aria-current="page"]:active { background: linear-gradient(135deg, #fde3e8 0%, #f9d1d9 100%); }
 }
 
 /* ==========================================================================
