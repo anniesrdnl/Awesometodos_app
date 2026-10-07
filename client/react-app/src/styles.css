@@ -611,6 +611,15 @@ kbd {
 .board__actions { display: flex; align-items: center; gap: var(--space-2); }
 .board__summary { color: var(--color-text-tertiary); font-size: var(--text-sm); }
 
+.composer { container-type: inline-size; }
+
+/* Narrow boards: the name gets its own line, date and Add share the next. */
+@container (max-width: 32rem) {
+    .composer__field { gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-lg); }
+    .composer__input { flex: 1 1 calc(100% - 2.5rem); height: var(--control-height-sm); }
+    .composer__field .date-input { flex: 1 1 0; min-width: 0; }
+}
+
 .composer__field {
     display: flex;
     flex-wrap: wrap;
@@ -1016,8 +1025,6 @@ kbd {
 }
 
 @media (max-width: 520px) {
-    .composer__field { flex-wrap: wrap; border-radius: var(--radius-lg); padding: var(--space-2); }
-    .composer__input { flex: 1 1 60%; }
     .task__actions { margin-left: auto; }
 }
 
