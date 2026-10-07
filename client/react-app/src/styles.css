@@ -1083,6 +1083,122 @@ kbd {
 @media (prefers-reduced-motion: reduce) { .hero__accent { animation: none; } }
 
 /* ==========================================================================
+   Navigation polish: icon chips, gradient active pill
+   ========================================================================== */
+
+.view-nav__list { gap: var(--space-2); }
+
+.view-nav__link {
+    height: 3rem;
+    padding: 0 var(--space-3) 0 var(--space-2);
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
+}
+
+.view-nav__link:hover {
+    border-color: var(--color-border);
+    background: var(--color-surface-solid);
+    box-shadow: var(--shadow-sm);
+    transform: translateX(4px);
+}
+
+.view-nav__icon {
+    box-sizing: border-box;
+    width: 2rem;
+    height: 2rem;
+    padding: 0.4rem;
+    border-radius: 0.75rem;
+    background: var(--color-fill);
+    transition: background-color var(--duration-fast), color var(--duration-fast), transform var(--duration-base) var(--ease-spring);
+}
+
+.view-nav__link:hover .view-nav__icon {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-fg);
+    transform: rotate(-8deg) scale(1.08);
+}
+
+.view-nav__link[aria-current="page"] {
+    border-color: transparent;
+    background: linear-gradient(135deg, #9aa76c 0%, #838f58 100%);
+    color: var(--color-on-accent);
+    box-shadow: var(--shadow-accent);
+    transform: none;
+}
+
+.view-nav__link[aria-current="page"]::before { display: none; }
+
+.view-nav__link[aria-current="page"] .view-nav__icon {
+    background: rgb(255 255 255 / 0.3);
+    color: var(--color-on-accent);
+    transform: none;
+}
+
+.view-nav__link[aria-current="page"] .view-nav__label { font-weight: 600; }
+
+.view-nav__link[aria-current="page"] .view-nav__count {
+    background: rgb(255 255 255 / 0.32);
+    color: var(--color-on-accent);
+}
+
+@media (prefers-color-scheme: dark) {
+    .view-nav__link[aria-current="page"] { background: linear-gradient(135deg, #fde3e8 0%, #f9d1d9 100%); }
+}
+
+/* ==========================================================================
+   Background details: faint dot grid and a few drifting rings
+   ========================================================================== */
+
+html::before,
+html::after {
+    content: "";
+    position: fixed;
+    z-index: -1;
+    pointer-events: none;
+}
+
+html::before {
+    inset: 0;
+    background-image: radial-gradient(var(--dot-color) 1.2px, transparent 1.4px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 60% 40%, #000 0%, transparent 80%);
+    mask-image: radial-gradient(ellipse 80% 70% at 60% 40%, #000 0%, transparent 80%);
+    animation: dots-pan 60s linear infinite;
+}
+
+@keyframes dots-pan { to { background-position: 28px 56px; } }
+
+html::after {
+    inset: 0;
+    background:
+        radial-gradient(circle, transparent calc(50% - 1px), var(--ring-color) calc(50% - 1px), var(--ring-color) 50%, transparent 50%) 88% 14% / 22rem 22rem no-repeat,
+        radial-gradient(circle, transparent calc(50% - 1px), var(--ring-color) calc(50% - 1px), var(--ring-color) 50%, transparent 50%) 96% 18% / 12rem 12rem no-repeat,
+        radial-gradient(circle, transparent calc(50% - 1px), var(--ring-color) calc(50% - 1px), var(--ring-color) 50%, transparent 50%) 30% 96% / 16rem 16rem no-repeat;
+    animation: rings-float 22s ease-in-out infinite alternate;
+}
+
+@keyframes rings-float {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-18px, 22px, 0); }
+}
+
+:root {
+    --dot-color: rgb(58 65 32 / 0.16);
+    --ring-color: rgb(131 143 88 / 0.28);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --dot-color: rgb(249 209 217 / 0.16);
+        --ring-color: rgb(249 209 217 / 0.2);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html::before, html::after { animation: none; }
+}
+
+/* ==========================================================================
    Responsive + motion
    ========================================================================== */
 
