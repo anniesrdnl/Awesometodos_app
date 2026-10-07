@@ -1,8 +1,8 @@
 import { useId } from "react";
 import { VIEWS } from "../lib/tasks";
-import { CalendarIcon, CheckCircleIcon, ListIcon } from "./Icon";
+import { CalendarIcon, CheckCircleIcon, HomeIcon, ListIcon } from "./Icon";
 
-const VIEW_ICONS = { active: ListIcon, completed: CheckCircleIcon, calendar: CalendarIcon };
+const VIEW_ICONS = { home: HomeIcon, active: ListIcon, completed: CheckCircleIcon, calendar: CalendarIcon };
 
 function Progress({ completed, total }) {
     const id = useId();
@@ -33,7 +33,7 @@ function Progress({ completed, total }) {
 export default function Sidebar({ currentView, counts, isReady }) {
     return (
         <aside className="sidebar">
-            <a className="brand" href={VIEWS[0].href}>Awesome Todos</a>
+            <a className="brand" href="#/">Awesome Todos</a>
 
             <nav className="view-nav" aria-label="Task views">
                 <ul className="view-nav__list">
@@ -48,7 +48,7 @@ export default function Sidebar({ currentView, counts, isReady }) {
                                 >
                                     <ViewIcon className="view-nav__icon" size={18} />
                                     <span className="view-nav__label">{view.label}</span>
-                                    {isReady && (
+                                    {isReady && counts[view.id] !== undefined && (
                                         <span key={counts[view.id]} className="view-nav__count">
                                             {counts[view.id]}
                                         </span>

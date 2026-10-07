@@ -56,6 +56,10 @@ export const ListIcon = (props) => (
     <Icon {...props}><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" /></Icon>
 );
 
+export const HomeIcon = (props) => (
+    <Icon {...props}><path d="M4 11 12 4l8 7M6 9.5V19a1 1 0 0 0 1 1h3.5v-5h3v5H17a1 1 0 0 0 1-1V9.5" /></Icon>
+);
+
 export const CalendarIcon = (props) => (
     <Icon {...props}>
         <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />

@@ -1,7 +1,8 @@
 export const MIN_TITLE_LENGTH = 4;
 
 export const VIEWS = [
-    { id: "active", label: "To do", title: "To do", href: "#/", matches: (task) => !task.status },
+    { id: "home", label: "Home", title: "Home", href: "#/home", matches: () => false },
+    { id: "active", label: "To do", title: "To do", href: "#/active", matches: (task) => !task.status },
     { id: "completed", label: "Completed", title: "Completed", href: "#/completed", matches: (task) => Boolean(task.status) },
     { id: "calendar", label: "Calendar", title: "Calendar", href: "#/calendar", matches: (task) => Boolean(task.dueDate) },
 ];

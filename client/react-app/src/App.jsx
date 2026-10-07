@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CalendarPage from "./components/CalendarPage";
+import HomePage from "./components/HomePage";
 import ConfirmDialog from "./components/ConfirmDialog";
 import { AlertIcon, CheckCircleIcon, InboxIcon, SearchIcon } from "./components/Icon";
 import SearchField from "./components/SearchField";
@@ -13,11 +14,11 @@ import { useHashView } from "./hooks/useHashView";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { UNDO_WINDOW_MS, useTodos } from "./hooks/useTodos";
 import { useToasts } from "./hooks/useToasts";
-import { formatDueDate, formatToday, pluralize, SORT_OPTIONS, toDateKey, VIEWS } from "./lib/tasks";
+import { cx, formatDueDate, formatToday, pluralize, SORT_OPTIONS, toDateKey, VIEWS } from "./lib/tasks";
 
 const HIGHLIGHT_MS = 1600;
 const NO_IDS = new Set();
-const TODO_VIEW = VIEWS[0];
+const TODO_VIEW = VIEWS.find((view) => view.id === "active");
 const SORT_STORAGE_KEY = "awesome-todos:sort";
 
 function readSortPreference() {
@@ -117,6 +118,7 @@ export default function App() {
     const departingIds = departing.viewId === view.id ? departing.ids : NO_IDS;
     const sortOption = SORT_OPTIONS.find((option) => option.id === sortOrder);
     const isCalendarView = view.id === "calendar";
+    const isHomeView = view.id === "home";
     const visibleTasks = todos
         .filter((task) => (view.matches(task) || departingIds.has(task._id)) && matchesSearch(task))
         .sort(sortOption.compare);
@@ -272,21 +274,35 @@ export default function App() {
     let listSummary = isCompletedView ? pluralize(viewCount, "completed task") : pluralize(viewCount, "open task");
     if (searchTerm) listSummary = `${pluralize(visibleTasks.length, "match", "matches")} in ${view.title}`;
 
-    if (isCalendarView) {
+    if (isCalendarView || isHomeView) {
         return (
             <div className="app">
                 <Sidebar currentView={view} counts={counts} isReady={isReady} />
 
                 <main className="main">
-                    <div className="main__inner main__inner--wide">
-                        <header className="page-header">
-                            <div className="page-header__text">
-                                <p className="page-header__date">{formatToday()}</p>
-                                <h1 className="page-header__title">{view.title}</h1>
-                            </div>
-                        </header>
+                    <div className={cx("main__inner", isCalendarView && "main__inner--wide")}>
+                        {isCalendarView && (
+                            <header className="page-header">
+                                <div className="page-header__text">
+                                    <p className="page-header__date">{formatToday()}</p>
+                                    <h1 className="page-header__title">{view.title}</h1>
+                                </div>
+                            </header>
+                        )}
 
-                        <CalendarPage
+                        {isHomeView && (
+                            <HomePage
+                                todos={todos}
+                                status={status}
+                                reload={reload}
+                                counts={counts}
+                                highlight={highlight}
+                                onCreate={handleCreateOnDay}
+                                onToggle={handleToggle}
+                            />
+                        )}
+
+                        {isCalendarView && <CalendarPage
                             todos={todos}
                             status={status}
                             reload={reload}
@@ -299,7 +315,7 @@ export default function App() {
                             onSetDueDate={handleSetDueDate}
                             onDelete={handleDelete}
                             onDeparted={handleDeparted}
-                        />
+                        />}
                     </div>
                 </main>
 
